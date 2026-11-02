@@ -63,29 +63,52 @@ function pageLd(path: string, title: string, description: string, crumbs: [strin
   return { "@context": "https://schema.org", "@graph": [ORG, WEBSITE, { "@type": "WebPage", "@id": url, url, name: title, description, isPartOf: { "@id": WEBSITE["@id"] }, inLanguage: "en-GB", ...(crumbs.length > 1 ? { breadcrumb: { "@type": "BreadcrumbList", itemListElement: list } } : {}) }, ...extra] };
 }
 
-const codeBlock = (id: string, code: string, label: string) =>
-  `<div class="code"><div class="code-bar"><span class="eyebrow">${esc(label)}</span><button class="copy" type="button" data-copy="${id}">Copy</button></div><pre><code id="${id}">${esc(code)}</code></pre></div>`;
+// ---- Product Scope components used by the pages (markup copied from productscope.uk; styles live in shell.ts) ----
+const ICON = (d: string) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const ICONS = {
+  shield: ICON(`<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><polyline points="9 12 11 14 15 10"/>`),
+  keyboard: ICON(`<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/>`),
+  eye: ICON(`<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>`),
+  trend: ICON(`<path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/>`),
+  moon: ICON(`<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>`),
+  phone: ICON(`<rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/>`),
+  scale: ICON(`<path d="M12 3v18M7 21h10M5 7h14"/><path d="M5 7l-3 7a3.5 3.5 0 0 0 6 0zM19 7l-3 7a3.5 3.5 0 0 0 6 0z"/>`),
+  file: ICON(`<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M10 13l-2 2 2 2M14 13l2 2-2 2"/>`),
+  pound: ICON(`<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5a3 3 0 0 0-6 .5v3M8.5 12h5M8.5 16h7M9.5 12v4"/>`),
+  db: ICON(`<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/>`),
+};
+const LOCK = `<svg class="pf-browser__lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>`;
 
-function chartPage(p: Page, i: number, nonce: string): string {
-  const prev = PAGES[(i + PAGES.length - 1) % PAGES.length], next = PAGES[(i + 1) % PAGES.length];
-  const pager = `<nav class="pager" aria-label="Previous and next chart"><a href="${prev.path}">← ${esc(prev.name)}</a><a href="/">All charts</a><a href="${next.path}">${esc(next.name)} →</a></nav>`;
-  const body = `
-${pager}
-<section class="widget" aria-labelledby="live-h"><header><div><h2 id="live-h">Live demo</h2><p class="sub">Made-up data. Try the options, then switch to the empty and one-point states.</p></div></header>
-<div id="tools" class="wtools" style="gap:6px 16px"></div>
-<div id="frame" class="frame"></div>
-<p class="live" id="msg" role="status" aria-live="polite"></p>
-<p class="hint">${esc(p.keys)}</p></section>
-<section class="panel" aria-labelledby="use-h"><header><h2 id="use-h">How to use it</h2></header>${codeBlock("snip", p.snippet, "JavaScript")}</section>
-<section class="panel" aria-labelledby="opt-h"><header><h2 id="opt-h">Options</h2></header><dl class="opts">${p.opts.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl></section>
-${pager}`;
-  const title = `${p.title}: SVG, no library | Product Scope Charts`;
-  const description = `${p.tag} Live demo and copyable code. Hand-built SVG, no library.`;
-  return layout({ nonce, title, description, path: p.path, nav: NAV, hero: { eyebrow: `Chart ${i + 1} of ${PAGES.length}`, title: p.title, lead: p.when }, body, script: p.script, ld: pageLd(p.path, title, description, [["Charts", "/"], [p.name, p.path]]) });
-}
+// Native <details> accordion (.faq): works from the keyboard with no script. Answers are trusted markup.
+const faq = (items: [string, string][]) =>
+  `<div class="faq">${items.map(([q, a], i) => `<details class="faq__item"${i === 0 ? " open" : ""}><summary>${esc(q)}</summary><p>${a}</p></details>`).join("")}</div>`;
+
+// Section header with the burgundy rule, optional button beside it (.cs-head).
+const csHead = (title: string, lead: string, btn?: [string, string], id?: string) =>
+  `<div class="cs-head"><div class="cs-head__main"><h2${id ? ` id="${id}"` : ""}>${title}</h2><p>${lead}</p></div>${btn ? `<a class="btn btn--outline cs-head__btn" href="${btn[0]}">${esc(btn[1])}</a>` : ""}</div>`;
+
+// Chart groups: used for the chips, the grouped gallery and the "more like this" cards.
+const GROUPS = [
+  { id: "time", name: "Over time", blurb: "See how a measure moves, repeats or clusters across days, weeks and months.", paths: ["/line", "/sparkline", "/calendar", "/heatmap", "/small-multiples"] },
+  { id: "compare", name: "Comparing", blurb: "Set one thing against another, in order or step by step.", paths: ["/bars", "/hbars", "/waterfall"] },
+  { id: "parts", name: "Parts of a whole", blurb: "Show what a total is made of and where it goes.", paths: ["/stacked", "/donut", "/treemap", "/flow"] },
+  { id: "glance", name: "At a glance", blurb: "Single figures, targets and the exact numbers behind them.", paths: ["/gauge", "/kpi-tiles", "/data-table"] },
+];
+const groupOf = (path: string) => GROUPS.find(g => g.paths.includes(path))!;
+const chips = (activeId?: string) =>
+  `<nav class="cat-chips" aria-label="Chart groups">${GROUPS.map(g => `<a class="cat-chip${g.id === activeId ? " cat-chip--active" : ""}" href="/#${g.id}"${g.id === activeId ? ' aria-current="true"' : ""}>${esc(g.name)} <span>${g.paths.length}</span></a>`).join("")}</nav>`;
+
+// A chart card: the site's .post-card, with a live preview drawn in the media slot (decorative, so hidden from screen readers).
+const chartCard = (p: Page, i: number, lvl = 4) =>
+  `<a class="post-card" href="${p.path}"><div class="post-card__media thumb" data-t="${p.path.slice(1)}" aria-hidden="true"></div><div class="post-card__body"><span class="post-card__date">Chart ${String(i + 1).padStart(2, "0")}</span><h${lvl}>${esc(p.name)}</h${lvl}><p>${esc(p.tag)}</p><span class="post-card__more">View chart &rarr;</span></div></a>`;
+
+const codeBlock = (id: string, code: string, label: string) =>
+  `<div class="code"><div class="code-bar"><span class="split__label">${esc(label)}</span><button class="copy" type="button" data-copy="${id}">Copy</button></div><pre><code id="${id}">${esc(code)}</code></pre></div>`;
 
 // Tiny live previews for the index cards, built with the same chart functions (text hidden by CSS: they are decorative).
+// Also draws the browser-frame mock-up on the home page. Wrapped in a function so its names never clash with a page script.
 const THUMBS = String.raw`
+(function(){
 const th={
  line:()=>lineChart({xs:MONTHS,series:[{name:'a',values:TOTAL,colour:'var(--c1)',area:true}],cap:3600,height:110}),
  bars:()=>barChart({cats:MONTHS.slice(-8),totals:false,mode:'grouped',series:[{name:'a',colour:'var(--c3)',values:TOTAL.slice(-8).map(v=>v*1.3)},{name:'b',colour:'var(--c2)',values:TOTAL.slice(-8)}],height:110}),
@@ -105,22 +128,122 @@ const th={
 };
 document.querySelectorAll('.thumb').forEach(el=>{const f=th[el.getAttribute('data-t')];if(!f)return;setChartWidth(300);setPatterns(false);try{el.append(f())}catch(e){}
   el.querySelectorAll('[tabindex]').forEach(n=>n.removeAttribute('tabindex'))});
+// Home page: a small copy of the dashboard inside the browser frame (same seed and formulas as the dashboard page, so the figures match).
+const hm=document.querySelector('#hero-mock');
+if(hm){try{
+  const r=rng(42),PL=['Starter','Team','Business','Enterprise'],base=[5200,11800,15400,7600],grow=[0.012,0.022,0.026,0.034],M12=MONTHS.slice(-12);
+  const REV=PL.map((p,k)=>M12.map((m,i)=>Math.round(base[k]*Math.pow(1+grow[k],i)*(0.97+r()*0.06))));
+  const MRR=M12.map((_,i)=>sum(REV.map(p=>p[i])));
+  const tiles=[['Monthly recurring revenue',gbp(MRR[11]),MRR.slice(-6)],['Monthly churn','1.9%',[2.6,2.4,2.3,2.2,2.0,1.9]],['Open support tickets','37',[52,49,47,44,41,37]]];
+  setChartWidth(Math.max(240,hm.clientWidth-30));setPatterns(false);
+  hm.append(h('div',{class:'kgrid',style:'grid-template-columns:repeat(3,minmax(0,1fr))'},tiles.map(t=>h('div',{class:'kt'},h('span',{class:'s'},t[0]),h('span',{class:'v'},t[1]),spark(t[2],{w:90,h:16})))),
+    barChart({cats:M12,totals:false,series:PL.map((p,k)=>({name:p,colour:'var(--c'+(k+1)+')',values:REV[k]})),xlabel:(c,t)=>t?monthName(c):MON[+c.slice(5,7)-1],height:130}));
+  hm.querySelectorAll('[tabindex]').forEach(n=>n.removeAttribute('tabindex'));
+}catch(e){}}
+})();
 `;
 
-function indexPage(nonce: string): string {
-  const cards = PAGES.map(p => `<a class="card" href="${p.path}"><div class="thumb" data-t="${p.path.slice(1)}" aria-hidden="true"></div><div class="card__body"><h2>${esc(p.name)}</h2><p>${esc(p.tag)}</p><span class="post-card__more">View chart &rarr;</span></div></a>`).join("");
+function chartPage(p: Page, i: number, nonce: string): string {
+  const prev = PAGES[(i + PAGES.length - 1) % PAGES.length], next = PAGES[(i + 1) % PAGES.length];
+  const g = groupOf(p.path);
+  const start = Math.max(0, g.paths.indexOf(p.path));
+  const related = [...g.paths.slice(start + 1), ...g.paths.slice(0, start)].slice(0, 3).map(x => byPath.get(x)!);
   const body = `
-<ul style="margin:0;padding-left:20px;color:var(--ink-2);max-width:76ch">
-<li>Works with a strict content security policy: no external scripts, fonts or styles, no <code>eval</code>.</li>
-<li>Light and dark themes, keyboard navigation, screen-reader labels, a data table behind every chart, optional patterns instead of colour.</li>
-<li>Every chart copes with empty, one-point and outlier data. Phone-friendly: charts resize to their container.</li>
-<li>Eight categorical colours checked for colour-blind separation and contrast; ${RUN}.</li></ul>
-<section class="panel feature"><div><h2>See them working together</h2><p>A made-up product dashboard for a fictional company, built from these charts: KPI tiles, recurring revenue by plan, a waterfall, a usage heatmap and more.</p></div><a class="btn btn--primary" href="/dashboard">Open the dashboard</a></section>
-<div class="cards">${cards}</div>
-<section class="panel"><h2>Use it in your own project</h2><p style="margin-top:6px;color:var(--ink-2)">The whole toolkit is one stylesheet and one script with no dependencies. <a href="/toolkit">See the code and how to wire it up →</a></p></section>`;
+<section class="section"><div class="container stack">
+<a class="back-link" href="/">&larr; All charts</a>
+${chips(g.id)}
+<section class="widget" aria-labelledby="live-h"><header><div><h2 id="live-h">Live demo</h2><p class="sub">Made-up data. Try the options, then switch to the empty and one-point states.</p></div></header>
+<div id="tools" class="wtools" style="gap:6px 16px"></div>
+<div id="frame" class="frame"></div>
+<p class="live" id="msg" role="status" aria-live="polite"></p>
+<p class="hint">${esc(p.keys)}</p></section>
+</div></section>
+<section class="section section--alt"><div class="container">
+${csHead("How to use it", `Paste the toolkit from <a href="/toolkit">Get the code</a> into your page first, then call the chart like this.`, undefined, "use-h")}
+${codeBlock("snip", p.snippet, "JavaScript")}
+</div></section>
+<section class="section"><div class="container">
+${csHead("Options", "What you can pass to this chart.", undefined, "opt-h")}
+<div class="feat-list">${p.opts.map(([k, v]) => `<div class="feat-row"><div class="feat-row__body"><h3><code>${esc(k)}</code></h3><p>${esc(v)}</p></div></div>`).join("")}</div>
+</div></section>
+<section class="section section--alt"><div class="container">
+${csHead("More charts like this", `Other charts in the &ldquo;${esc(g.name)}&rdquo; group.`, ["/", "All charts"])}
+<div class="cards">${related.map(r => chartCard(r, PAGES.indexOf(r), 3)).join("")}</div>
+<nav class="post-nav" aria-label="Previous and next chart"><a href="${prev.path}">&larr; ${esc(prev.name)}</a><span>Chart ${i + 1} of ${PAGES.length}</span><a href="${next.path}">${esc(next.name)} &rarr;</a></nav>
+</div></section>`;
+  const title = `${p.title}: SVG, no library | Product Scope Charts`;
+  const description = `${p.tag} Live demo and copyable code. Hand-built SVG, no library.`;
+  return layout({ nonce, title, description, path: p.path, nav: NAV, hero: { title: p.title, lead: p.when }, body, script: THUMBS + p.script, ld: pageLd(p.path, title, description, [["Charts", "/"], [p.name, p.path]]) });
+}
+
+const FEATURES: [string, string, string][] = [
+  [ICONS.shield, "Works under a strict content security policy", "No external scripts, fonts or styles, and no eval."],
+  [ICONS.keyboard, "Keyboard and screen readers", "Tab into any chart and move with the arrow keys. Every chart has a screen-reader label and a data table behind it."],
+  [ICONS.eye, "Colour that can be told apart", "Eight categorical colours checked for colour-blind separation, plus optional patterns instead of colour. Legends, tooltips and the table view back up the colours that fall below 3:1 contrast."],
+  [ICONS.trend, "Honest about awkward data", "Empty, one-point and outlier data are handled and shown, not hidden."],
+  [ICONS.moon, "Light and dark themes", "Both themes are built in. Your choice is saved in your browser's local storage and nowhere else."],
+  [ICONS.phone, "Works on a phone", "Charts resize to their container, so the same code works from a phone to a wide screen."],
+];
+
+const HOME_FAQ: [string, string][] = [
+  ["Can I use it commercially?", `Yes. The code is open source under the MIT licence, so you can use, copy and change it in your own projects, including commercial ones. Keep the licence notice with the code. The fonts on this site are under the SIL Open Font License.`],
+  ["How do I change the currency?", `Currency is hard-coded to pounds in two helpers, <code>compact()</code> and <code>money0</code>. Change those two for another currency.`],
+  ["Is it accessible?", `Every chart can be reached with the keyboard, has a screen-reader label and can be shown as a data table. There is an option to use patterns instead of colour. If you find a problem, please <a href="https://github.com/DavidLortalPM/productscope-charts/issues">open an issue on GitHub</a>.`],
+  ["Does it work with a strict content security policy?", `Yes. It is one stylesheet and one script, with no external requests and no <code>eval</code>. This site is served with a strict policy and the charts run under it.`],
+  ["Does this site track me?", `No. There are no cookies, no analytics and no third-party requests. The only thing saved is your light or dark theme choice, in your browser's local storage.`],
+  ["Is the data real?", `No. Every number is made up. It is generated in your browser from seeded random numbers, so each visit shows the same figures and nothing private is involved.`],
+];
+
+const FACTS: [string, string, string][] = [
+  [ICONS.scale, "Licence", "MIT. Free to use and change."],
+  [ICONS.file, "Files", "One stylesheet and one script."],
+  [ICONS.moon, "Themes", "Light and dark, saved in your browser."],
+  [ICONS.pound, "Currency", "Pounds. Two helpers to change."],
+  [ICONS.db, "Data", "Made up, generated in your browser."],
+];
+
+function indexPage(nonce: string): string {
+  const groups = GROUPS.map(g => `<div class="group" id="${g.id}"><h3 class="h2-rule">${esc(g.name)}</h3><p>${esc(g.blurb)}</p><div class="cards">${g.paths.map(x => byPath.get(x)!).map(pg => chartCard(pg, PAGES.indexOf(pg))).join("")}</div></div>`).join("");
+  const body = `
+<section class="section"><div class="container"><div class="split">
+<div class="split__media"><a class="split__link" href="/dashboard" aria-label="Open the mock-up dashboard"><div class="pf-browser"><div class="pf-browser__bar"><span class="pf-browser__dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="pf-browser__addr">${LOCK}charts.productscope.uk/dashboard</span></div><div class="pf-browser__view" id="hero-mock" aria-hidden="true"></div></div></a></div>
+<div class="split__body">
+<p class="split__label">Free &middot; Open source &middot; MIT licence</p>
+<h2>See them working together</h2>
+<p>A made-up product dashboard for a fictional company, built from these charts: KPI tiles, recurring revenue by plan, a waterfall, a usage heatmap and more. It uses ten of the fifteen chart types.</p>
+<p>All the data is made up, so there is nothing private in it. Every chart works under a strict content security policy and runs in light and dark.</p>
+<div class="split__actions"><a class="btn btn--primary" href="/dashboard">Open the dashboard</a><a class="btn btn--outline" href="/toolkit">Get the code</a><a class="btn btn--outline" href="https://github.com/DavidLortalPM/productscope-charts">View on GitHub</a></div>
+</div></div></div></section>
+<section class="section section--alt" id="charts"><div class="container">
+${csHead("All fifteen charts", "Each page has a live demo you can change, a copyable snippet and the options. Jump to a group or scroll through them all.")}
+${chips()}
+${groups}
+</div></section>
+<section class="section section--cool"><div class="container">
+${csHead("Small on purpose", "One stylesheet and one script. Nothing to install, nothing to keep updating and nothing loaded from anywhere else.", ["/toolkit", "Get the code"])}
+<div class="cs-stats cs-stats--4">
+<div class="cs-stat"><strong>15</strong><b>chart types</b><p>Plus a mock-up dashboard that uses ten of them.</p></div>
+<div class="cs-stat"><strong>0</strong><b>libraries</b><p>One stylesheet and one script, written by hand.</p></div>
+<div class="cs-stat"><strong>0</strong><b>third-party requests</b><p>No external scripts, fonts or styles. No cookies and no analytics.</p></div>
+<div class="cs-stat"><strong>MIT</strong><b>licence</b><p>Free to use and change, including in commercial work.</p></div>
+</div>
+<div class="feat-list">${FEATURES.map(([ic, t, d]) => `<div class="feat-row"><span class="feat-row__icon">${ic}</span><div class="feat-row__body"><h3>${esc(t)}</h3><p>${esc(d)}</p></div></div>`).join("")}</div>
+</div></section>
+<section class="section"><div class="container"><div class="panel panel--warm">
+${csHead("Use it in your own project", "Three steps and no build tools.", ["/toolkit", "Open the code"])}
+<div class="deliver2-grid">
+<div class="deliver2"><span class="deliver2__num">01</span><h3>Copy the code</h3><p>The toolkit page has the design tokens, three small helpers, one block of CSS and one script. Paste them into your page.</p></div>
+<div class="deliver2"><span class="deliver2__num">02</span><h3>Draw a chart</h3><p>Call a chart function such as <code>lineChart</code> with your data and add the result to the page. Every chart page has a snippet to start from.</p></div>
+<div class="deliver2"><span class="deliver2__num">03</span><h3>Make it yours</h3><p>Point the design tokens at your own theme. Change two helpers if you need a currency other than pounds.</p></div>
+</div></div></div></section>
+<section class="section section--alt"><div class="container">
+${csHead("Questions people ask", "Short answers about the licence, currency, accessibility and security.")}
+<div class="faq-grid">${faq(HOME_FAQ)}
+<aside class="faq-grid__media cs-side-card" aria-labelledby="short-h"><h3 class="sidebar__title" id="short-h">The short version</h3><ul class="cs-facts-side">${FACTS.map(([ic, t, d]) => `<li><span class="cs-side-ico">${ic}</span><div><span class="fact-t">${esc(t)}</span><span class="fact-d">${esc(d)}</span></div></li>`).join("")}</ul></aside></div>
+</div></section>`;
   const title = "Hand-built SVG charts, no libraries | Product Scope Charts";
   const description = "Hand-built SVG charts with no libraries: live demos, copyable code and options for fifteen chart types, all with made-up data.";
-  return layout({ nonce, title, description, path: "/", nav: NAV, hero: { eyebrow: "Hand-built SVG, no libraries", title: "Chart showcase", lead: "Fifteen chart types in one small toolkit: line, bars, stacked, donut, heatmap, calendar, treemap, sparkline, gauge, waterfall, flow, ranked bars, small multiples, KPI tiles and data tables. Each page has a live demo, a copyable snippet and the options." }, body, script: THUMBS, ld: pageLd("/", title, description, [["Charts", "/"]]) });
+  return layout({ nonce, title, description, path: "/", nav: NAV, hero: { title: "Chart showcase", lead: "Fifteen chart types in one small toolkit: line, bars, stacked, donut, heatmap, calendar, treemap, sparkline, gauge, waterfall, flow, ranked bars, small multiples, KPI tiles and data tables. Each page has a live demo, a copyable snippet and the options." }, body, script: THUMBS, ld: pageLd("/", title, description, [["Charts", "/"]]) });
 }
 
 // A mock-up product dashboard composed from the real chart functions. Everything is made up (seeded, so it is the same on every visit).
@@ -173,10 +296,25 @@ let rw=0,raf=0;new ResizeObserver(()=>{const w=$('.dash').clientWidth;if(Math.ab
 `;
 
 const dpanel = (cls: string, id: string, title: string, href: string, link: string) =>
-  `<section class="panel ${cls}" aria-labelledby="${id}-h"><header><h2 id="${id}-h">${esc(title)}</h2><a class="d-link" href="${href}">${esc(link)} &rarr;</a></header><div id="${id}"></div></section>`;
+  `<section class="widget ${cls}" aria-labelledby="${id}-h"><header><h2 id="${id}-h">${esc(title)}</h2><a class="d-link" href="${href}">${esc(link)} &rarr;</a></header><div id="${id}"></div></section>`;
+
+// Which chart page is behind each part of the dashboard.
+const DASH_USES: [string, string][] = [
+  ["/kpi-tiles", "The four key figures at the top."],
+  ["/sparkline", "The small trend line in each tile."],
+  ["/stacked", "Recurring revenue by plan, with a target line."],
+  ["/donut", "Revenue by region."],
+  ["/waterfall", "Net new revenue this month."],
+  ["/line", "Weekly active users, against the same weeks last year."],
+  ["/heatmap", "When people use the product."],
+  ["/hbars", "The most-used features."],
+  ["/gauge", "Spend against budget."],
+  ["/data-table", "Recent releases."],
+];
 
 function dashboardPage(nonce: string): string {
   const body = `
+<section class="section section--alt"><div class="container stack">
 <p class="dash-note">This is a dashboard for a fictional company, Acme Cloud, built from the same charts as the rest of this site and wired to made-up data. Hover or tab to any chart, switch the theme, or open a panel&rsquo;s chart page for its code and a table view.</p>
 <div id="d-kpi" class="kgrid"></div>
 <div class="dash">
@@ -188,25 +326,58 @@ ${dpanel("d-8", "d-heat", "When people use it", "/heatmap", "Heatmap")}
 ${dpanel("d-4", "d-feat", "Most-used features", "/hbars", "Ranked bars")}
 ${dpanel("d-6", "d-budget", "Spend against budget", "/gauge", "Gauge")}
 ${dpanel("d-6", "d-rel", "Recent releases", "/data-table", "Data table")}
-</div>`;
+</div></div></section>
+<section class="section"><div class="container">
+${csHead("Ten charts, one page", "Open any of these to see its live demo, code and options.", ["/", "All charts"])}
+<div class="feat-list feat-list--titles">${DASH_USES.map(([path, note]) => `<div class="feat-row"><div class="feat-row__body"><h3><a href="${path}">${esc(byPath.get(path)!.name)}</a></h3><p>${esc(note)}</p></div></div>`).join("")}</div>
+</div></section>`;
   const title = "Mock-up product dashboard in plain SVG charts | Product Scope Charts";
   const description = "A made-up product dashboard built from hand-built SVG charts: KPI tiles, stacked revenue, a waterfall, a usage heatmap and more. No libraries, all made-up data.";
-  return layout({ nonce, title, description, path: "/dashboard", nav: NAV, hero: { eyebrow: "Everything together", title: "Mock-up dashboard", lead: "Ten of the fifteen charts working together in one view. Every number is made up." }, body, script: DASH, ld: pageLd("/dashboard", title, description, [["Charts", "/"], ["Dashboard", "/dashboard"]]) });
+  return layout({ nonce, title, description, path: "/dashboard", nav: NAV, hero: { title: "Mock-up dashboard", lead: "Ten of the fifteen charts working together in one view. Every number is made up." }, body, script: DASH, ld: pageLd("/dashboard", title, description, [["Charts", "/"], ["Dashboard", "/dashboard"]]) });
 }
+
+const TOKENS: [string, string][] = [
+  ["--surface, --bg, --sunk", "Card, page and recessed backgrounds."],
+  ["--ink, --ink-2, --muted", "Primary, secondary and axis text."],
+  ["--line, --line-2", "Gridlines and borders."],
+  ["--accent, --accent-ink", "Single-series colour and the text colour that sits on it."],
+  ["--c1 … --c8, --c9", "Eight validated categorical colours in fixed order; c9 is grey for Other."],
+  ["--ok, --guess, --decide", "Status colours (good, warning, bad) for gauges and deltas."],
+  ["--f-ui, --r", "Font stack and corner radius."],
+];
+
+const TOOLKIT_FAQ: [string, string][] = [
+  ["Why is there no backtick or dollar-brace in the script?", `The script is stored as a template literal in the source, so it contains no backticks and no dollar-brace sequences. Keep it that way if you embed it the same way.`],
+  ["How do I make a chart fit its container?", `Call <code>setChartWidth(container.clientWidth)</code> before drawing so charts fit their container, and redraw on resize.`],
+  ["How do I change the currency?", `Currency is hard-coded to pounds in <code>compact()</code> and <code>money0</code>. Change those two for another currency.`],
+];
 
 function toolkitPage(nonce: string): string {
   const body = `
-<section class="panel"><h2>1. Design tokens</h2><p class="sub" style="color:var(--muted);margin:4px 0 10px">The charts read these CSS variables, so they follow your theme. Put light values on :root and dark values under prefers-color-scheme.</p>
-<dl class="opts"><dt>--surface, --bg, --sunk</dt><dd>Card, page and recessed backgrounds.</dd><dt>--ink, --ink-2, --muted</dt><dd>Primary, secondary and axis text.</dd><dt>--line, --line-2</dt><dd>Gridlines and borders.</dd><dt>--accent, --accent-ink</dt><dd>Single-series colour and the text colour that sits on it.</dd><dt>--c1 … --c8, --c9</dt><dd>Eight validated categorical colours in fixed order; c9 is grey for Other.</dd><dt>--ok, --guess, --decide</dt><dd>Status colours (good, warning, bad) for gauges and deltas.</dd><dt>--f-ui, --r</dt><dd>Font stack and corner radius.</dd></dl></section>
-<section class="panel"><h2>2. Helpers the script expects</h2><p style="margin:4px 0 10px;color:var(--ink-2)">Define these before the toolkit. They are the same few lines used by every page here.</p>
-${codeBlock("helpers", HELPERS, "JavaScript")}</section>
-<section class="panel">${codeBlock("css", CHARTS_CSS.trim(), "3. Chart CSS")}</section>
-<section class="panel">${codeBlock("js", CHARTS_JS.trim(), "4. Chart script")}</section>
-<section class="panel"><h2>Notes</h2><ul style="margin:6px 0 0;padding-left:20px;color:var(--ink-2)"><li>The script is stored as a template literal in the source, so it contains no backticks and no dollar-brace sequences. Keep it that way if you embed it the same way.</li><li>Call <code>setChartWidth(container.clientWidth)</code> before drawing so charts fit their container; redraw on resize.</li><li>Currency is hard-coded to pounds in <code>compact()</code> and <code>money0</code>; change those two for another currency.</li></ul></section>`;
+<section class="section"><div class="container">
+${csHead("1. Design tokens", "The charts read these CSS variables, so they follow your theme. Put light values on :root and dark values under prefers-color-scheme.", undefined, "tok-h")}
+<div class="feat-list">${TOKENS.map(([k, v]) => `<div class="feat-row"><div class="feat-row__body"><h3><code>${esc(k)}</code></h3><p>${esc(v)}</p></div></div>`).join("")}</div>
+</div></section>
+<section class="section section--alt"><div class="container">
+${csHead("2. Helpers the script expects", "Define these before the toolkit. They are the same few lines used by every page here.")}
+${codeBlock("helpers", HELPERS, "JavaScript")}
+</div></section>
+<section class="section"><div class="container">
+${csHead("3. Chart CSS", "One block of CSS. Paste it into a style element.")}
+${codeBlock("css", CHARTS_CSS.trim(), "CSS")}
+</div></section>
+<section class="section section--alt"><div class="container">
+${csHead("4. Chart script", "One script. Paste it into a script element, then call the chart functions.")}
+${codeBlock("js", CHARTS_JS.trim(), "JavaScript")}
+</div></section>
+<section class="section"><div class="container">
+${csHead("Notes", "Three things to know before you embed it.")}
+${faq(TOOLKIT_FAQ)}
+</div></section>`;
   const title = "Get the SVG chart code: CSS, script and design tokens | Product Scope Charts";
   const description = "Copy the whole chart toolkit: design tokens, three small helpers, one block of CSS and one script. No dependencies, MIT licensed.";
   const code = { "@type": "SoftwareSourceCode", name: "Product Scope Charts", description, codeRepository: "https://github.com/DavidLortalPM/productscope-charts", programmingLanguage: "JavaScript", license: "https://opensource.org/licenses/MIT", author: { "@id": ORG["@id"] }, publisher: { "@id": ORG["@id"] } };
-  return layout({ nonce, title, description, path: "/toolkit", nav: NAV, hero: { eyebrow: "Reference", title: "Get the code", lead: "Two blocks and a handful of design tokens. Paste the CSS into a style element and the script into a script element, define the three helpers, and call the chart functions." }, body, script: "", ld: pageLd("/toolkit", title, description, [["Charts", "/"], ["Get the code", "/toolkit"]], [code]) });
+  return layout({ nonce, title, description, path: "/toolkit", nav: NAV, hero: { title: "Get the code", lead: "Two blocks and a handful of design tokens. Paste the CSS into a style element and the script into a script element, define the three helpers, and call the chart functions." }, body, script: "", ld: pageLd("/toolkit", title, description, [["Charts", "/"], ["Get the code", "/toolkit"]], [code]) });
 }
 
 const HELPERS = `const h = (t, a = {}, ...k) => {            // tiny DOM builder
@@ -249,7 +420,7 @@ export default {
     else if (path === "/dashboard") html = dashboardPage(nonce);
     else if (byPath.has(path)) html = chartPage(byPath.get(path)!, PAGES.indexOf(byPath.get(path)!), nonce);
     if (html == null) {
-      const body = layout({ nonce, title: "Not found | Product Scope Charts", description: "Page not found", path: "", nav: NAV, hero: { title: "Page not found", lead: "That page does not exist." }, body: `<p><a href="/">See all charts</a></p>`, script: "" });
+      const body = layout({ nonce, title: "Not found | Product Scope Charts", description: "Page not found", path: "", nav: NAV, hero: { title: "Page not found", lead: "That page does not exist or may have moved." }, body: `<section class="section"><div class="container"><div class="btn-row"><a class="btn btn--primary" href="/">See all charts</a><a class="btn btn--outline" href="/toolkit">Get the code</a></div></div></section>`, script: "", cta: false });
       return new Response(req.method === "HEAD" ? null : body, { status: 404, headers: headers(nonce, "text/html; charset=utf-8") });
     }
     return new Response(req.method === "HEAD" ? null : html, { headers: headers(nonce, "text/html; charset=utf-8") });
