@@ -243,7 +243,7 @@ ${csHead("Questions people ask", "Short answers about the licence, currency, acc
 </div></section>`;
   const title = "Hand-built SVG charts, no libraries | Product Scope Charts";
   const description = "Hand-built SVG charts with no libraries: live demos, copyable code and options for fifteen chart types, all with made-up data.";
-  return layout({ nonce, title, description, path: "/", nav: NAV, hero: { title: "Chart showcase", lead: "Fifteen chart types in one small toolkit: line, bars, stacked, donut, heatmap, calendar, treemap, sparkline, gauge, waterfall, flow, ranked bars, small multiples, KPI tiles and data tables. Each page has a live demo, a copyable snippet and the options." }, body, script: THUMBS, ld: pageLd("/", title, description, [["Charts", "/"]]) });
+  return layout({ nonce, title, description, path: "/", nav: NAV, hero: { title: "Product Scope Charts", lead: "Fifteen chart types in one small toolkit: line, bars, stacked, donut, heatmap, calendar, treemap, sparkline, gauge, waterfall, flow, ranked bars, small multiples, KPI tiles and data tables. Each page has a live demo, a copyable snippet and the options." }, body, script: THUMBS, ld: pageLd("/", title, description, [["Charts", "/"]]) });
 }
 
 // A mock-up product dashboard composed from the real chart functions. Everything is made up (seeded, so it is the same on every visit).

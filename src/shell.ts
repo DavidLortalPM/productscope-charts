@@ -495,7 +495,7 @@ ${o.cta === false ? "" : CTA}
 <div class="footer-main">
 <div class="footer-brand"><a class="footer-brand__lock" href="${PS}">${MARK}<span class="footer-brand__name">Product Scope</span></a>
 <p>Product-led consultancy for digital products, automation and AI-assisted delivery.</p>
-<p>This chart showcase is a free resource. Every number in it is made up. It sets no cookies and collects no personal data.</p></div>
+<p>Product Scope Charts is a free resource. Every number in it is made up. It sets no cookies and collects no personal data.</p></div>
 <div class="footer-col"><h3>Product Scope</h3><ul>
 <li><a href="${PS}/">Home</a></li><li><a href="${PS}/about/">About Product Scope</a></li><li><a href="${PS}/services/">Services</a></li><li><a href="${PS}/case-studies/">Case Studies</a></li><li><a href="${PS}/blog/">Articles</a></li><li><a href="${PS}/contact/">Contact</a></li><li><a href="${PS}/privacy-policy/">Privacy Policy</a></li><li><a href="${PS}/terms/">Terms</a></li></ul></div>
 <div class="footer-col"><h3>Charts</h3><ul>
