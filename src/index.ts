@@ -196,11 +196,10 @@ function indexPage(nonce: string): string {
 <section class="section"><div class="container"><div class="split split--text">
 <div class="split__body">
 <h2 class="sr-only">About the charts</h2>
-<p>These started as the charts inside one of my own apps. I pulled them out, swapped in made-up data and published them so anyone building a dashboard, report or admin screen can reuse them without taking on a charting library.</p>
-<p>Each chart is a JavaScript function that takes arrays of numbers and a few options and draws plain SVG. The toolkit is one stylesheet and one script, with no dependencies and no external requests, so it runs under a strict content security policy. Colours, font and corner radius come from CSS variables, so it follows your theme, light or dark.</p>
+<p>These started as the charts inside one of my own apps. I pulled them out, swapped in made-up data and published them under the MIT licence so anyone building a dashboard, report or admin screen can reuse them without taking on a charting library. The source is on <a href="https://github.com/DavidLortalPM/productscope-charts">GitHub</a>.</p>
+<p>Each chart is a JavaScript function that takes arrays of numbers and a few options and draws plain SVG. The <a href="/toolkit">toolkit code</a> is one stylesheet and one script, with no dependencies and no external requests, so it runs under a strict content security policy. Colours, font and corner radius come from CSS variables, so it follows your theme, light or dark.</p>
 <p>Every chart page gives you when to use it, a live demo, the options and a snippet to paste. The charts handle empty data, a single data point and outliers, can be used from the keyboard and can be shown as a table.</p>
 <p>The dashboard is a worked example: ten of the fifteen charts on one page, wired to made-up data. Claude built it, and the charts. The function signatures are small and regular, so the same approach works for your own dashboards: give an AI assistant the toolkit, describe your data and ask it to build the page.</p>
-<p><a href="/toolkit">Get the code</a> or <a href="https://github.com/DavidLortalPM/productscope-charts">view it on GitHub</a>.</p>
 <div class="split__actions"><a class="btn btn--primary" href="/dashboard">Open the dashboard</a></div>
 </div>
 <div class="split__media"><aside class="cs-side-card" aria-labelledby="short-h"><h3 class="sidebar__title" id="short-h">Details</h3><ul class="cs-facts-side">${FACTS.map(([ic, t, d]) => `<li><span class="cs-side-ico">${ic}</span><div><span class="fact-t">${esc(t)}</span><span class="fact-d">${esc(d)}</span></div></li>`).join("")}</ul></aside></div>
