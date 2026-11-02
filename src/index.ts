@@ -203,7 +203,7 @@ function indexPage(nonce: string): string {
 <p><a href="/toolkit">Get the code</a> or <a href="https://github.com/DavidLortalPM/productscope-charts">view it on GitHub</a>.</p>
 <div class="split__actions"><a class="btn btn--primary" href="/dashboard">Open the dashboard</a></div>
 </div>
-<div class="split__media"><aside class="cs-side-card" aria-labelledby="short-h"><h3 class="sidebar__title" id="short-h">The short version</h3><ul class="cs-facts-side">${FACTS.map(([ic, t, d]) => `<li><span class="cs-side-ico">${ic}</span><div><span class="fact-t">${esc(t)}</span><span class="fact-d">${esc(d)}</span></div></li>`).join("")}</ul></aside></div>
+<div class="split__media"><aside class="cs-side-card" aria-labelledby="short-h"><h3 class="sidebar__title" id="short-h">Details</h3><ul class="cs-facts-side">${FACTS.map(([ic, t, d]) => `<li><span class="cs-side-ico">${ic}</span><div><span class="fact-t">${esc(t)}</span><span class="fact-d">${esc(d)}</span></div></li>`).join("")}</ul></aside></div>
 </div></div></section>
 <section class="section section--alt" id="charts"><div class="container">
 ${csHead("All fifteen charts", "Each page has a live demo you can change, a copyable snippet and the options. Jump to a group or scroll through them all.")}
