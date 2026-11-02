@@ -492,7 +492,7 @@ demo({
   draw:S=>{const cs=S.data==='empty'?[]:CATS.slice(0,7);if(!cs.length)return h('div',{class:'note'},'No categories in this range');
     const vals=c=>{const v=SP[CATS.indexOf(c)];return S.data==='one'?v.slice(0,1):v};
     const wrap=h('div',{},h('div',{class:'sm'},cs.map(c=>h('button',{class:'c',type:'button','aria-pressed':String(c===SEL),on:{click:()=>{SEL=c;say('Showing '+c+' below.');redraw()}}},h('span',{class:'n'},c),h('span',{class:'v'},gbp(vals(c)[vals(c).length-1])+' latest'),spark(vals(c),{w:150,h:36,bars:S.bars,label:c+' trend'})))));
-    const dv=vals(SEL);wrap.append(h('div',{style:'margin-top:16px'},h('div',{class:'eyebrow'},SEL+' in detail'),lineChart({xs:MONTHS.slice(0,dv.length),xlabel:(m)=>monthName(m),series:[{name:SEL,values:dv,colour:catColourOf(SEL),area:true}],height:200,label:SEL+' by month'})));return wrap},
+    const dv=vals(SEL);wrap.append(h('div',{style:'margin-top:16px'},h('div',{class:'tlabel'},SEL+' in detail'),lineChart({xs:MONTHS.slice(0,dv.length),xlabel:(m)=>monthName(m),series:[{name:SEL,values:dv,colour:catColourOf(SEL),area:true}],height:200,label:SEL+' by month'})));return wrap},
   table:S=>({caption:'Latest month against the 12-month average (made-up numbers)',head:['Category','Latest','12-month average','vs average'],rows:(S.data==='empty'?[]:CATS.slice(0,7)).map(c=>{const v=SP[CATS.indexOf(c)],l=v[v.length-1],a=sum(v.slice(-12))/12;return[c,gbp(l),gbp(a),(l>=a?'+':'-')+Math.round(Math.abs(l/a-1)*100)+'%']})}),
   note:S=>S.data==='normal'?'Click a card to change the detail chart. Each card has its own scale: compare shapes, not heights.':''
 });`,
