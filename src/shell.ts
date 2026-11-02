@@ -317,6 +317,8 @@ a.post-card:hover .post-card__more{background:var(--brand-fill);border-color:var
 .faq__item summary::after{content:"+";position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:1.5rem;font-weight:400;line-height:1;color:var(--brand)}
 .faq__item[open]>summary::after{content:"\\2212"}
 .faq__item p{margin:0 0 24px;color:var(--ink);max-width:72ch}
+.section--cool .deliver2-grid{margin-top:clamp(44px,5vw,68px)}
+.section--cool .h2-rule{margin-top:clamp(52px,6vw,80px)}
 :root{interpolate-size:allow-keywords}
 .faq__item::details-content{block-size:0;overflow:clip;transition:block-size .32s ease,content-visibility .32s allow-discrete}
 .faq__item[open]::details-content{block-size:auto}

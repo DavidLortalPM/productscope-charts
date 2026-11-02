@@ -186,13 +186,12 @@ const FEATURES: [string, string, string][] = [
 ];
 
 const HOME_FAQ: [string, string][] = [
+  ["What are these charts for?", `They are for the dashboards, reports and admin screens inside a product: how a number moves over time, how a total breaks down, what needs attention and what to do next. Each chart page says when to use that chart and when not to.`],
+  ["Can I use them to build a dashboard with an AI assistant?", `Yes, and that is how this site was made. Give an assistant such as Claude the toolkit page, describe what the dashboard should show and where the data comes from, and ask it to build the page with these charts. Each chart takes plain arrays and a few options, so it can connect them to your own data and restyle them with the design tokens. Check what it produces, as you would with any code, and test it with a keyboard and a screen reader.`],
   ["Can I use it commercially?", `Yes. The code is open source under the MIT licence, so you can use, copy and change it in your own projects, including commercial ones. Keep the licence notice with the code. The fonts on this site are under the SIL Open Font License.`],
   ["How do I change the currency?", `Currency is hard-coded to pounds in two helpers, <code>compact()</code> and <code>money0</code>. Change those two for another currency.`],
   ["Is it accessible?", `Every chart can be reached with the keyboard, has a screen-reader label and can be shown as a data table. There is an option to use patterns instead of colour. If you find a problem, please <a href="https://github.com/DavidLortalPM/productscope-charts/issues">open an issue on GitHub</a>.`],
-  ["Does it work with a strict content security policy?", `Yes. It is one stylesheet and one script, with no external requests and no <code>eval</code>. This site is served with a strict policy and the charts run under it.`],
-  ["Does this site track me?", `No. There are no cookies, no analytics and no third-party requests. The only thing saved is your light or dark theme choice, in your browser's local storage.`],
   ["Was this built with AI?", `Yes. Claude built all fifteen charts and the mock-up dashboard, working from my direction. It is the same AI-assisted approach I use on products and reporting for clients, such as the <a href="https://productscope.uk/building-a-jira-time-reporting-dashboard-with-claude/">Jira time reporting dashboard I built with Claude</a>.`],
-  ["Is the data real?", `No. Every number is made up. It is generated in your browser from seeded random numbers, so each visit shows the same figures and nothing private is involved.`],
 ];
 
 const FACTS: [string, string, string][] = [
@@ -211,9 +210,10 @@ function indexPage(nonce: string): string {
 <div class="split__body">
 <p class="split__label">Free &middot; Open source &middot; MIT licence</p>
 <h2>See them working together</h2>
-<p>A made-up product dashboard for a fictional company, built from these charts: KPI tiles, recurring revenue by plan, a waterfall, a usage heatmap and more. It uses ten of the fifteen chart types.</p>
-<p>All the data is made up, so there is nothing private in it. Every chart works under a strict content security policy and runs in light and dark.</p>
-<div class="split__actions"><a class="btn btn--primary" href="/dashboard">Open the dashboard</a><a class="btn btn--outline" href="/toolkit">Get the code</a><a class="btn btn--outline" href="https://github.com/DavidLortalPM/productscope-charts">View on GitHub</a></div>
+<p>A made-up product dashboard for a fictional company, built from these charts: KPI tiles, recurring revenue by plan, a waterfall, a usage heatmap and more. It uses ten of the fifteen chart types, and every number in it is made up.</p>
+<p>The charts are plain functions that take arrays of numbers and a few options, so they are easy to point at your own data and easy for an AI assistant to work with. Describe the dashboard you want, give it the code and it can choose the right chart for each question and connect it to your data. Claude built this dashboard that way.</p>
+<p><a href="/toolkit">Get the code</a> or <a href="https://github.com/DavidLortalPM/productscope-charts">view it on GitHub</a>.</p>
+<div class="split__actions"><a class="btn btn--primary" href="/dashboard">Open the dashboard</a></div>
 </div></div></div></section>
 <section class="section section--alt" id="charts"><div class="container">
 ${csHead("All fifteen charts", "Each page has a live demo you can change, a copyable snippet and the options. Jump to a group or scroll through them all.")}
@@ -221,30 +221,24 @@ ${chips()}
 ${groups}
 </div></section>
 <section class="section section--cool"><div class="container">
-${csHead("Small on purpose", "One stylesheet and one script. Nothing to install, nothing to keep updating and nothing loaded from anywhere else.", ["/toolkit", "Get the code"])}
+${csHead("Small on purpose, simple to use", "One stylesheet and one script. Nothing to install, nothing to keep updating and nothing loaded from anywhere else. Copy it in, draw a chart and make it yours.", ["/toolkit", "Get the code"])}
 <div class="cs-stats cs-stats--4">
 <div class="cs-stat"><strong>15</strong><b>chart types</b><p>Plus a mock-up dashboard that uses ten of them.</p></div>
 <div class="cs-stat"><strong>0</strong><b>libraries</b><p>One stylesheet and one script, built from scratch.</p></div>
 <div class="cs-stat"><strong>0</strong><b>third-party requests</b><p>No external scripts, fonts or styles. No cookies and no analytics.</p></div>
 <div class="cs-stat"><strong>MIT</strong><b>licence</b><p>Free to use and change, including in commercial work.</p></div>
 </div>
-<div class="feat-list">${FEATURES.map(([ic, t, d]) => `<div class="feat-row"><span class="feat-row__icon">${ic}</span><div class="feat-row__body"><h3>${esc(t)}</h3><p>${esc(d)}</p></div></div>`).join("")}</div>
-</div></section>
-<section class="section"><div class="container"><div class="panel panel--warm">
-${csHead("Use it in your own project", "Three steps and no build tools.", ["/toolkit", "Open the code"])}
 <div class="deliver2-grid">
 <div class="deliver2"><span class="deliver2__num">01</span><h3>Copy the code</h3><p>The toolkit page has the design tokens, three small helpers, one block of CSS and one script. Paste them into your page.</p></div>
 <div class="deliver2"><span class="deliver2__num">02</span><h3>Draw a chart</h3><p>Call a chart function such as <code>lineChart</code> with your data and add the result to the page. Every chart page has a snippet to start from.</p></div>
-<div class="deliver2"><span class="deliver2__num">03</span><h3>Make it yours</h3><p>Point the design tokens at your own theme. Change two helpers if you need a currency other than pounds.</p></div>
-</div></div></div></section>
-<section class="section section--alt"><div class="container">
-${csHead("Questions people ask", "Short answers about the licence, currency, accessibility and security.")}
-<div class="faq-grid">${faq(HOME_FAQ)}
-<aside class="faq-grid__media cs-side-card" aria-labelledby="short-h"><h3 class="sidebar__title" id="short-h">The short version</h3><ul class="cs-facts-side">${FACTS.map(([ic, t, d]) => `<li><span class="cs-side-ico">${ic}</span><div><span class="fact-t">${esc(t)}</span><span class="fact-d">${esc(d)}</span></div></li>`).join("")}</ul></aside></div>
+<div class="deliver2"><span class="deliver2__num">03</span><h3>Make it yours</h3><p>Point the design tokens at your own theme, or ask an AI assistant to build the dashboard for you. Change two helpers if you need a currency other than pounds.</p></div>
+</div>
+<h3 class="h2-rule">Questions people ask</h3>
+${faq(HOME_FAQ)}
 </div></section>`;
   const title = "SVG charts, no libraries, built with Claude | Product Scope Charts";
   const description = "SVG charts with no libraries, built with Claude: live demos, copyable code and options for fifteen chart types, all with made-up data.";
-  return layout({ nonce, title, description, path: "/", nav: NAV, hero: { title: "Product Scope Charts", lead: "Fifteen chart types in one small toolkit: line, bars, stacked, donut, heatmap, calendar, treemap, sparkline, gauge, waterfall, flow, ranked bars, small multiples, KPI tiles and data tables. Each page has a live demo, a copyable snippet and the options." }, body, script: THUMBS, ld: pageLd("/", title, description, [["Charts", "/"]]) });
+  return layout({ nonce, title, description, path: "/", nav: NAV, hero: { title: "Product Scope Charts", lead: "A free toolkit of fifteen chart types for the dashboards and reports inside a product: line, bars, stacked, donut, heatmap, calendar, treemap, sparkline, gauge, waterfall, flow, ranked bars, small multiples, KPI tiles and data tables. Each page has a live demo, a copyable snippet and the options." }, body, script: THUMBS, ld: pageLd("/", title, description, [["Charts", "/"]]) });
 }
 
 // A mock-up product dashboard composed from the real chart functions. Everything is made up (seeded, so it is the same on every visit).
