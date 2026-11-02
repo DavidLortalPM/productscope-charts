@@ -196,7 +196,6 @@ function indexPage(nonce: string): string {
 <section class="section"><div class="container"><div class="split split--text">
 <div class="split__body">
 <h2 class="sr-only">About the charts</h2>
-<p>These started as the charts inside one of my own apps. I pulled them out, swapped in made-up data and published them under the MIT licence so anyone building a dashboard, report or admin screen can reuse them without taking on a charting library. The source is on <a href="https://github.com/DavidLortalPM/productscope-charts">GitHub</a>.</p>
 <p>Each chart is a JavaScript function that takes arrays of numbers and a few options and draws plain SVG. The <a href="/toolkit">toolkit code</a> is one stylesheet and one script, with no dependencies and no external requests, so it runs under a strict content security policy. Colours, font and corner radius come from CSS variables, so it follows your theme, light or dark.</p>
 <p>Every chart page gives you when to use it, a live demo, the options and a snippet to paste. The charts handle empty data, a single data point and outliers, can be used from the keyboard and can be shown as a table.</p>
 <p>The dashboard is a worked example: ten of the fifteen charts on one page, wired to made-up data. Claude built it, and the charts. The function signatures are small and regular, so the same approach works for your own dashboards: give an AI assistant the toolkit, describe your data and ask it to build the page.</p>
@@ -227,7 +226,7 @@ ${faq(HOME_FAQ)}
 </div></section>`;
   const title = "SVG charts, no libraries, built with Claude | Product Scope Charts";
   const description = "SVG charts with no libraries, built with Claude: live demos, copyable code and options for fifteen chart types, all with made-up data.";
-  return layout({ nonce, title, description, path: "/", nav: NAV, hero: { title: "Product Scope Charts", lead: "Fifteen SVG chart types for the dashboards, reports and admin screens inside a product: line, bars, stacked, donut, heatmap, calendar, treemap, sparkline, gauge, waterfall, flow, ranked bars, small multiples, KPI tiles and data tables." }, body, script: THUMBS, ld: pageLd("/", title, description, [["Charts", "/"]]) });
+  return layout({ nonce, title, description, path: "/", nav: NAV, hero: { title: "Product Scope Charts", leadHtml: `These started as the charts inside one of my own apps. I pulled them out, swapped in made-up data and published them under the MIT licence so anyone building a dashboard, report or admin screen can reuse them without taking on a charting library. The source is on <a href="https://github.com/DavidLortalPM/productscope-charts">GitHub</a>.` }, body, script: THUMBS, ld: pageLd("/", title, description, [["Charts", "/"]]) });
 }
 
 // A mock-up product dashboard composed from the real chart functions. Everything is made up (seeded, so it is the same on every visit).

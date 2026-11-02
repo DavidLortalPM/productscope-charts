@@ -450,7 +450,7 @@ document.querySelectorAll('[data-copy]').forEach(b=>b.addEventListener('click',a
 `;
 
 export interface NavItem { path: string; name: string }
-export interface Hero { title: string; lead?: string }
+export interface Hero { title: string; lead?: string; leadHtml?: string }
 
 const SITE = "https://charts.productscope.uk";
 const PS = "https://productscope.uk";
@@ -466,7 +466,7 @@ export function layout(o: { nonce: string; title: string; description: string; p
     ? `<link rel="canonical" href="${esc(canon)}">
 <meta property="og:type" content="website"><meta property="og:site_name" content="Product Scope"><meta property="og:title" content="${esc(o.title)}"><meta property="og:description" content="${esc(o.description)}"><meta property="og:url" content="${esc(canon)}"><meta property="og:locale" content="en_GB"><meta property="og:image" content="${SITE}/og.png"><meta property="og:image:type" content="image/png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Product Scope Charts: SVG charts with no libraries, built with Claude"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(o.title)}"><meta name="twitter:description" content="${esc(o.description)}"><meta name="twitter:image" content="${SITE}/og.png">`
     : `<meta name="robots" content="noindex">`;
-  const hero = `<section class="hero-light"><div class="container"><h1>${esc(o.hero.title)}</h1>${o.hero.lead ? `<p class="lead">${esc(o.hero.lead)}</p>` : ""}</div></section>`;
+  const hero = `<section class="hero-light"><div class="container"><h1>${esc(o.hero.title)}</h1>${o.hero.leadHtml ? `<p class="lead">${o.hero.leadHtml}</p>` : o.hero.lead ? `<p class="lead">${esc(o.hero.lead)}</p>` : ""}</div></section>`;
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
