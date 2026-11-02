@@ -1,4 +1,4 @@
-// Chart toolkit: hand-built SVG, no libraries (so a strict CSP stays strict). 8 named colour slots (the rest fold into grey),
+// Chart toolkit: SVG built from scratch, no libraries (so a strict CSP stays strict). 8 named colour slots (the rest fold into grey),
 // charts size themselves to their container width (setChartWidth) so text stays readable on a phone, label counts follow the
 // width, dataTable takes a caption, and heatmap value text switches ink so it stays legible on pale cells.
 // Every chart can show its data as a table, charts are keyboard-reachable (Tab, arrow keys, Escape), patterns can replace

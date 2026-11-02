@@ -172,7 +172,7 @@ ${csHead("More charts like this", `Other charts in the &ldquo;${esc(g.name)}&rdq
 <nav class="post-nav" aria-label="Previous and next chart"><a href="${prev.path}">&larr; ${esc(prev.name)}</a><span>Chart ${i + 1} of ${PAGES.length}</span><a href="${next.path}">${esc(next.name)} &rarr;</a></nav>
 </div></section>`;
   const title = `${p.title}: SVG, no library | Product Scope Charts`;
-  const description = `${p.tag} Live demo and copyable code. Hand-built SVG, no library.`;
+  const description = `${p.tag} Live demo and copyable code. Built from scratch in SVG, no library.`;
   return layout({ nonce, title, description, path: p.path, nav: NAV, hero: { title: p.title, lead: p.when }, body, script: THUMBS + p.script, ld: pageLd(p.path, title, description, [["Charts", "/"], [p.name, p.path]]) });
 }
 
@@ -191,6 +191,7 @@ const HOME_FAQ: [string, string][] = [
   ["Is it accessible?", `Every chart can be reached with the keyboard, has a screen-reader label and can be shown as a data table. There is an option to use patterns instead of colour. If you find a problem, please <a href="https://github.com/DavidLortalPM/productscope-charts/issues">open an issue on GitHub</a>.`],
   ["Does it work with a strict content security policy?", `Yes. It is one stylesheet and one script, with no external requests and no <code>eval</code>. This site is served with a strict policy and the charts run under it.`],
   ["Does this site track me?", `No. There are no cookies, no analytics and no third-party requests. The only thing saved is your light or dark theme choice, in your browser's local storage.`],
+  ["Was this built with AI?", `Yes. Claude built all fifteen charts and the mock-up dashboard, working from my direction. It is the same AI-assisted approach I use on products and reporting for clients, such as the <a href="https://productscope.uk/building-a-jira-time-reporting-dashboard-with-claude/">Jira time reporting dashboard I built with Claude</a>.`],
   ["Is the data real?", `No. Every number is made up. It is generated in your browser from seeded random numbers, so each visit shows the same figures and nothing private is involved.`],
 ];
 
@@ -223,7 +224,7 @@ ${groups}
 ${csHead("Small on purpose", "One stylesheet and one script. Nothing to install, nothing to keep updating and nothing loaded from anywhere else.", ["/toolkit", "Get the code"])}
 <div class="cs-stats cs-stats--4">
 <div class="cs-stat"><strong>15</strong><b>chart types</b><p>Plus a mock-up dashboard that uses ten of them.</p></div>
-<div class="cs-stat"><strong>0</strong><b>libraries</b><p>One stylesheet and one script, written by hand.</p></div>
+<div class="cs-stat"><strong>0</strong><b>libraries</b><p>One stylesheet and one script, built from scratch.</p></div>
 <div class="cs-stat"><strong>0</strong><b>third-party requests</b><p>No external scripts, fonts or styles. No cookies and no analytics.</p></div>
 <div class="cs-stat"><strong>MIT</strong><b>licence</b><p>Free to use and change, including in commercial work.</p></div>
 </div>
@@ -241,8 +242,8 @@ ${csHead("Questions people ask", "Short answers about the licence, currency, acc
 <div class="faq-grid">${faq(HOME_FAQ)}
 <aside class="faq-grid__media cs-side-card" aria-labelledby="short-h"><h3 class="sidebar__title" id="short-h">The short version</h3><ul class="cs-facts-side">${FACTS.map(([ic, t, d]) => `<li><span class="cs-side-ico">${ic}</span><div><span class="fact-t">${esc(t)}</span><span class="fact-d">${esc(d)}</span></div></li>`).join("")}</ul></aside></div>
 </div></section>`;
-  const title = "Hand-built SVG charts, no libraries | Product Scope Charts";
-  const description = "Hand-built SVG charts with no libraries: live demos, copyable code and options for fifteen chart types, all with made-up data.";
+  const title = "SVG charts, no libraries, built with Claude | Product Scope Charts";
+  const description = "SVG charts with no libraries, built with Claude: live demos, copyable code and options for fifteen chart types, all with made-up data.";
   return layout({ nonce, title, description, path: "/", nav: NAV, hero: { title: "Product Scope Charts", lead: "Fifteen chart types in one small toolkit: line, bars, stacked, donut, heatmap, calendar, treemap, sparkline, gauge, waterfall, flow, ranked bars, small multiples, KPI tiles and data tables. Each page has a live demo, a copyable snippet and the options." }, body, script: THUMBS, ld: pageLd("/", title, description, [["Charts", "/"]]) });
 }
 
@@ -330,9 +331,12 @@ ${dpanel("d-6", "d-rel", "Recent releases", "/data-table", "Data table")}
 <section class="section"><div class="container">
 ${csHead("Ten charts, one page", "Open any of these to see its live demo, code and options.", ["/", "All charts"])}
 <div class="feat-list feat-list--titles">${DASH_USES.map(([path, note]) => `<div class="feat-row"><div class="feat-row__body"><h3><a href="${path}">${esc(byPath.get(path)!.name)}</a></h3><p>${esc(note)}</p></div></div>`).join("")}</div>
+</div></section>
+<section class="section section--alt"><div class="container">
+${csHead("From charts to working dashboards", "Claude built this dashboard and every chart on this site, working from my direction. I take the same approach to dashboards and reporting in real products, using AI where it speeds up delivery and keeping a person in charge of what gets built.", ["https://productscope.uk/building-a-jira-time-reporting-dashboard-with-claude/", "Read the Jira dashboard article"])}
 </div></section>`;
   const title = "Mock-up product dashboard in plain SVG charts | Product Scope Charts";
-  const description = "A made-up product dashboard built from hand-built SVG charts: KPI tiles, stacked revenue, a waterfall, a usage heatmap and more. No libraries, all made-up data.";
+  const description = "A made-up product dashboard built from the SVG charts on this site: KPI tiles, stacked revenue, a waterfall, a usage heatmap and more. No libraries, all made-up data.";
   return layout({ nonce, title, description, path: "/dashboard", nav: NAV, hero: { title: "Mock-up dashboard", lead: "Ten of the fifteen charts working together in one view. Every number is made up." }, body, script: DASH, ld: pageLd("/dashboard", title, description, [["Charts", "/"], ["Dashboard", "/dashboard"]]) });
 }
 

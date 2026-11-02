@@ -1,6 +1,6 @@
 # Product Scope Charts
 
-**Fifteen hand-built SVG chart types. No libraries, no dependencies, strict-CSP friendly, free to use.**
+**Fifteen SVG chart types, built from scratch with Claude. No libraries, no dependencies, strict-CSP friendly, free to use.**
 
 [**See it live**](https://charts.productscope.uk) · [Get the code](https://charts.productscope.uk/toolkit) · [Product Scope](https://productscope.uk)
 

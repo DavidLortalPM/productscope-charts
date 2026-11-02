@@ -1,7 +1,7 @@
 {
   "name": "productscope-charts",
   "version": "1.0.0",
-  "description": "Product Scope Charts: fifteen hand-built SVG chart types with no libraries, strict-CSP friendly and accessible. Free to use. All demo data is made up.",
+  "description": "Product Scope Charts: fifteen SVG chart types, built with Claude, with no libraries, strict-CSP friendly and accessible. Free to use. All demo data is made up.",
   "private": true,
   "type": "module",
   "homepage": "https://charts.productscope.uk",
