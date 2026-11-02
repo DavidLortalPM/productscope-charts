@@ -158,7 +158,7 @@ dl.opts dd{margin:0;color:var(--ink-2)}
 
 /* Footer: brand block + link columns + legal bar (as the site footer) */
 .site-footer{background:var(--slate);color:#bdbdbd;padding:70px 0 0;font-size:.95rem;border-top:3px solid #800020}
-.footer-main{display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:clamp(32px,5vw,64px);padding-bottom:44px;align-items:start}
+.footer-main{display:grid;grid-template-columns:1.3fr 1.5fr .8fr;gap:clamp(32px,5vw,64px);padding-bottom:44px;align-items:start}
 .footer-brand{max-width:420px}
 .footer-brand__lock{display:inline-flex;align-items:center;gap:11px;color:#fff;margin-bottom:20px;text-decoration:none}
 .footer-brand__lock .ps-mark{width:34px;height:34px;animation:none}
@@ -171,8 +171,11 @@ dl.opts dd{margin:0;color:var(--ink-2)}
 .site-footer a:hover{color:#fff}
 .footer-legal{border-top:1px solid rgba(255,255,255,.1);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px 24px;padding:22px 0;font-size:.85rem;color:#8b969d}
 .footer-totop{color:#8b969d;font-family:var(--f-head);font-weight:600;white-space:nowrap}
-@media (max-width:860px){.footer-main{grid-template-columns:1fr 1fr}.footer-brand{grid-column:1/-1}}
-@media (max-width:560px){.footer-main{grid-template-columns:1fr}.footer-legal{flex-direction:column}}
+.footer-links--2{columns:2;column-gap:32px}
+.footer-links--2 li{break-inside:avoid}
+.footer-legal__links{display:inline-flex;flex-wrap:wrap;gap:8px 22px}
+@media (max-width:860px){.footer-main{grid-template-columns:1fr}.footer-brand{grid-column:auto}}
+@media (max-width:560px){.footer-legal{flex-direction:column}.footer-links--2{column-gap:20px}}
 ${CHARTS_CSS}
 
 /* Product Scope component layer: applied after the toolkit CSS so the shared widgets share the site's look */
@@ -496,14 +499,15 @@ ${o.cta === false ? "" : CTA}
 <div class="footer-brand"><a class="footer-brand__lock" href="${PS}">${MARK}<span class="footer-brand__name">Product Scope</span></a>
 <p>Product-led consultancy for digital products, automation and AI-assisted delivery.</p>
 <p>Product Scope Charts is a free resource. Every number in it is made up. It sets no cookies and collects no personal data.</p></div>
-<div class="footer-col"><h3>Product Scope</h3><ul>
-<li><a href="${PS}/">Home</a></li><li><a href="${PS}/about/">About Product Scope</a></li><li><a href="${PS}/services/">Services</a></li><li><a href="${PS}/case-studies/">Case Studies</a></li><li><a href="${PS}/blog/">Articles</a></li><li><a href="${PS}/contact/">Contact</a></li><li><a href="${PS}/privacy-policy/">Privacy Policy</a></li><li><a href="${PS}/terms/">Terms</a></li></ul></div>
+<div class="footer-col"><h3>Product Scope</h3><ul class="footer-links--2">
+<li><a href="${PS}/">Home</a></li><li><a href="${PS}/about/">About Product Scope</a></li><li><a href="${PS}/services/">Services</a></li><li><a href="${PS}/case-studies/">Case Studies</a></li><li><a href="${PS}/blog/">Articles</a></li><li><a href="${PS}/contact/">Contact</a></li></ul></div>
 <div class="footer-col"><h3>Charts</h3><ul>
 <li><a href="/">All charts</a></li><li><a href="/toolkit">Get the code</a></li><li><a href="https://github.com/DavidLortalPM/productscope-charts">Source on GitHub</a></li></ul></div>
 </div>
 <div class="footer-legal">
 <span>&copy; ${new Date().getFullYear()} Product Scope Ltd. UK-registered consultancy working with clients remotely.</span>
 <span>167-169 Great Portland Street, 5th Floor, London, W1W 5PF. Company No. 14373211</span>
+<span class="footer-legal__links"><a href="${PS}/privacy-policy/">Privacy Policy</a><a href="${PS}/terms/">Terms</a></span>
 <a class="footer-totop" href="#main">Back to top &uarr;</a>
 </div>
 </div></footer>
