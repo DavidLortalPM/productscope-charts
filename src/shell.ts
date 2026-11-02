@@ -69,16 +69,37 @@ p a,li a,dd a,.hint a{text-decoration:underline;text-underline-offset:2px;text-d
 @media (prefers-reduced-motion:reduce){.ps-mark{animation:none}}
 .site-logo__name{font-family:var(--f-head);font-weight:700;text-transform:uppercase;letter-spacing:.03em;line-height:.98;font-size:1.05rem;color:#fff}
 .site-logo__tag{font-family:var(--f-head);font-weight:500;text-transform:uppercase;letter-spacing:.14em;font-size:.72rem;color:#c7d2de;border-left:1px solid rgba(255,255,255,.3);padding-left:12px;margin-left:2px}
-.header-links{display:flex;align-items:center;gap:26px}
-.hl{position:relative;color:#fff;font-family:var(--f-head);font-weight:500;font-size:.98rem;padding:6px 0;text-decoration:none}
-.hl:hover{color:#fff}
-.hl::after{content:"";position:absolute;left:0;bottom:0;width:0;height:2px;background:#fff;transition:width .25s ease}
-.hl:hover::after{width:100%}
-.theme{font-family:var(--f-head);font-weight:600;font-size:.82rem;letter-spacing:.02em;padding:8px 16px;border-radius:4px;border:2px solid rgba(255,255,255,.6);background:transparent;color:#fff;cursor:pointer;transition:all .2s ease}
-.theme:hover{background:#fff;border-color:#fff;color:#800020}
-.site-logo,.site-logo__name,.theme{white-space:nowrap}
-@media (max-width:720px){.hl--gh,.site-logo__tag{display:none}}
-@media (max-width:560px){.hl{display:none}.theme{padding:6px 12px;font-size:.76rem}.container{padding-inline:18px}.site-header .container{gap:12px}}
+.header-right{display:flex;align-items:center;gap:14px}
+.main-nav ul{list-style:none;display:flex;align-items:center;gap:28px;margin:0;padding:0}
+.main-nav a{position:relative;color:#fff;font-family:var(--f-head);font-weight:500;font-size:.98rem;padding:6px 0;text-decoration:none;white-space:nowrap}
+.main-nav a:hover{color:#fff}
+.main-nav a::after{content:"";position:absolute;left:0;bottom:0;width:0;height:2px;background:#fff;transition:width .25s ease}
+.main-nav a:hover::after,.main-nav a[aria-current="page"]::after{width:100%}
+.main-nav a.nav-cta{font-weight:600;font-size:.85rem;letter-spacing:.02em;padding:8px 16px;border:2px solid rgba(255,255,255,.6);border-radius:4px;transition:all .2s ease}
+.main-nav a.nav-cta::after{display:none}
+.main-nav a.nav-cta:hover{background:#fff;border-color:#fff;color:#800020}
+.theme,.nav-toggle{display:inline-grid;place-items:center;width:40px;height:40px;padding:0;border:2px solid rgba(255,255,255,.45);border-radius:4px;background:transparent;color:#fff;cursor:pointer;transition:background .2s ease,border-color .2s ease}
+.theme:hover,.nav-toggle:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.8)}
+.theme svg,.nav-toggle svg{width:20px;height:20px}
+.theme .i-sun{display:none}
+:root[data-theme="dark"] .theme .i-moon{display:none}
+:root[data-theme="dark"] .theme .i-sun{display:block}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .theme .i-moon{display:none}:root:not([data-theme="light"]) .theme .i-sun{display:block}}
+.nav-toggle{display:none}
+.site-logo,.site-logo__name{white-space:nowrap}
+@media (max-width:1000px){
+  .nav-toggle{display:inline-grid}
+  .main-nav{display:none;position:absolute;top:100%;left:0;right:0;background:var(--nav);border-top:1px solid rgba(255,255,255,.15);box-shadow:0 10px 18px rgba(0,0,0,.18);padding:8px 24px 18px}
+  .main-nav[data-open]{display:block}
+  .main-nav ul{flex-direction:column;align-items:stretch;gap:0}
+  .main-nav li{border-bottom:1px solid rgba(255,255,255,.1)}
+  .main-nav li:last-child{border-bottom:0;padding-top:12px}
+  .main-nav a{display:block;padding:14px 0;font-size:1.05rem}
+  .main-nav a::after{display:none}
+  .main-nav a[aria-current="page"]{color:#fff;font-weight:600}
+  .main-nav a.nav-cta{display:inline-block;padding:10px 18px}
+}
+@media (max-width:520px){.site-logo__tag{display:none}.container{padding-inline:18px}.main-nav{padding-inline:18px}.site-header .container{gap:12px}}
 
 /* Title band: hero-light with the 64px burgundy rule under the heading */
 .hero-light{padding:clamp(40px,5vw,64px) 0 clamp(14px,2vw,28px)}
@@ -177,6 +198,23 @@ ${CHARTS_CSS}
 .mini[aria-pressed="true"]{background:var(--brand-fill);border-color:var(--brand-fill);color:#fff}
 .copy{border:1.5px solid var(--brand);background:transparent;color:var(--brand);border-radius:4px;padding:6px 16px;font-family:var(--f-head);font-size:.82rem;font-weight:600;cursor:pointer;transition:all .2s ease}
 .copy:hover{background:var(--brand-fill);border-color:var(--brand-fill);color:#fff}
+.code{border:1px solid var(--line);border-radius:var(--r-sm);overflow:hidden;background:var(--sunk)}
+.code-bar{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 8px 7px 14px;border-bottom:1px solid var(--line);background:var(--surface)}
+.code pre{border:0;border-radius:0;background:transparent}
+.code-bar .copy{padding:4px 12px;font-size:.78rem}
+.btn{display:inline-flex;align-items:center;gap:.5em;font-family:var(--f-head);font-weight:600;font-size:.9rem;letter-spacing:.02em;padding:13px 28px;border-radius:4px;border:2px solid transparent;cursor:pointer;text-decoration:none;transition:all .2s ease;white-space:nowrap}
+.btn--primary{background:var(--brand-fill);border-color:var(--brand-fill);color:#fff}
+.btn--primary:hover{background:var(--brand-dark);border-color:var(--brand-dark);color:#fff}
+.feature{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:center;justify-content:space-between}
+.feature p{color:var(--ink-2);margin-top:8px;max-width:64ch}
+.dash{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:22px}
+.dash>.panel{display:flex;flex-direction:column;gap:6px;min-width:0}
+.d-4{grid-column:span 4}.d-6{grid-column:span 6}.d-8{grid-column:span 8}
+@media (max-width:960px){.d-4,.d-6,.d-8{grid-column:1/-1}}
+.d-link{font-family:var(--f-head);font-weight:600;font-size:.8rem;color:var(--brand);text-decoration:none;white-space:nowrap}
+.d-link:hover{color:var(--brand-dark);text-decoration:underline}
+.dash-note{color:var(--ink-2);max-width:78ch}
+.kt svg{max-width:100%;height:auto}
 `;
 
 export const SHOW_JS = String.raw`
@@ -239,10 +277,17 @@ document.querySelectorAll('[data-copy]').forEach(b=>b.addEventListener('click',a
   const old=b.textContent;b.textContent='Copied';setTimeout(()=>{b.textContent=old},1600)}));
 (function(){})();
 (function(){const b=$('#theme');if(!b)return;
-  const cur=()=>{try{return localStorage.getItem('cs_theme')||'auto'}catch(e){return'auto'}};
-  const apply=v=>{if(v==='auto')document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme',v);b.textContent='Theme: '+v};
-  apply(cur());
-  b.addEventListener('click',()=>{const n={auto:'light',light:'dark',dark:'auto'}[cur()];try{localStorage.setItem('cs_theme',n)}catch(e){}apply(n)})})();
+  const mq=matchMedia('(prefers-color-scheme: dark)');
+  const stored=()=>{try{const t=localStorage.getItem('cs_theme');return t==='light'||t==='dark'?t:null}catch(e){return null}};
+  const eff=()=>stored()||(mq.matches?'dark':'light');
+  const paint=()=>{const l=eff()==='dark'?'Switch to light theme':'Switch to dark theme';b.setAttribute('aria-label',l);b.title=l};
+  paint();
+  b.addEventListener('click',()=>{const n=eff()==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);try{localStorage.setItem('cs_theme',n)}catch(e){}paint()});
+  if(mq.addEventListener)mq.addEventListener('change',paint)})();
+(function(){const t=$('#navtoggle'),n=$('#primary-nav');if(!t||!n)return;
+  const set=o=>{if(o)n.setAttribute('data-open','');else n.removeAttribute('data-open');t.setAttribute('aria-expanded',String(o));t.setAttribute('aria-label',o?'Close menu':'Open menu')};
+  t.addEventListener('click',()=>set(!n.hasAttribute('data-open')));
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&n.hasAttribute('data-open')){set(false);t.focus()}})})();
 `;
 
 export interface NavItem { path: string; name: string }
@@ -253,11 +298,11 @@ const PS = "https://productscope.uk";
 const MARK = `<svg class="ps-mark" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="11" aria-hidden="true"><polyline class="ps-mark__c ps-mark__tl" points="10,40 10,10 40,10" /><polyline class="ps-mark__c ps-mark__tr" points="60,10 90,10 90,40" /><polyline class="ps-mark__c ps-mark__br" points="90,60 90,90 60,90" /><polyline class="ps-mark__c ps-mark__bl" points="40,90 10,90 10,60" /></svg>`;
 const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='none' stroke='%23800020' stroke-width='14'%3E%3Cpolyline points='10,40 10,10 40,10'/%3E%3Cpolyline points='60,10 90,10 90,40'/%3E%3Cpolyline points='90,60 90,90 60,90'/%3E%3Cpolyline points='40,90 10,90 10,60'/%3E%3C/svg%3E";
 
-export function layout(o: { nonce: string; title: string; description: string; path: string; nav: NavItem[]; hero: Hero; body: string; script: string }): string {
+export function layout(o: { nonce: string; title: string; description: string; path: string; nav: NavItem[]; hero: Hero; body: string; script: string; ld?: object }): string {
   const canon = o.path ? SITE + o.path : "";
   const meta = o.path
     ? `<link rel="canonical" href="${esc(canon)}">
-<meta property="og:type" content="website"><meta property="og:site_name" content="Product Scope"><meta property="og:title" content="${esc(o.title)}"><meta property="og:description" content="${esc(o.description)}"><meta property="og:url" content="${esc(canon)}"><meta name="twitter:card" content="summary">`
+<meta property="og:type" content="website"><meta property="og:site_name" content="Product Scope"><meta property="og:title" content="${esc(o.title)}"><meta property="og:description" content="${esc(o.description)}"><meta property="og:url" content="${esc(canon)}"><meta property="og:locale" content="en_GB"><meta property="og:image" content="${SITE}/og.png"><meta property="og:image:type" content="image/png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Product Scope Charts: hand-built SVG charts with no libraries"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(o.title)}"><meta name="twitter:description" content="${esc(o.description)}"><meta name="twitter:image" content="${SITE}/og.png">`
     : `<meta name="robots" content="noindex">`;
   const hero = `<section class="hero-light"><div class="container">${o.hero.eyebrow ? `<span class="eyebrow">${esc(o.hero.eyebrow)}</span>` : ""}<h1>${esc(o.hero.title)}</h1>${o.hero.lead ? `<p class="lead">${esc(o.hero.lead)}</p>` : ""}</div></section>`;
   return `<!doctype html>
@@ -269,12 +314,23 @@ export function layout(o: { nonce: string; title: string; description: string; p
 <title>${esc(o.title)}</title>
 ${meta}
 <link rel="icon" href="${FAVICON}">
+${o.ld ? `<script type="application/ld+json" nonce="${o.nonce}">${JSON.stringify(o.ld).replace(/</g, "\\u003c")}</script>` : ""}
 <script nonce="${o.nonce}">try{var t=localStorage.getItem('cs_theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
 <style>${SHOW_CSS}</style></head>
 <body><a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header"><div class="container">
 <a class="site-logo" href="/" aria-label="Product Scope Charts - home">${MARK}<span class="site-logo__name">Product Scope</span><span class="site-logo__tag">Charts</span></a>
-<div class="header-links"><a class="hl" href="${PS}">productscope.uk</a><a class="hl hl--gh" href="https://github.com/DavidLortalPM/productscope-charts">GitHub</a><button class="theme" id="theme" type="button">Theme: auto</button></div>
+<div class="header-right">
+<nav class="main-nav" id="primary-nav" aria-label="Primary"><ul>
+<li><a href="/"${o.path === "/" ? ' aria-current="page"' : ""}>All charts</a></li>
+<li><a href="/dashboard"${o.path === "/dashboard" ? ' aria-current="page"' : ""}>Dashboard</a></li>
+<li><a href="/toolkit"${o.path === "/toolkit" ? ' aria-current="page"' : ""}>Get the code</a></li>
+<li><a href="https://github.com/DavidLortalPM/productscope-charts">GitHub</a></li>
+<li><a class="nav-cta" href="${PS}">Product Scope &#8599;</a></li>
+</ul></nav>
+<button class="theme" id="theme" type="button" aria-label="Switch to dark theme" title="Switch to dark theme"><svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></button>
+<button class="nav-toggle" id="navtoggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="primary-nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+</div>
 </div></header>
 <main id="main">
 ${hero}

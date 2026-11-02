@@ -20,6 +20,7 @@ It started life inside one of our own apps. We cleaned it up and gave it away as
 - **Works under a strict CSP:** no external scripts, fonts or styles, and no `eval`.
 - **Accessible by default:** keyboard navigation, screen-reader labels, a data table behind every chart, and optional patterns instead of colour.
 - **Honest about edge cases:** empty, one-point and outlier data are handled and shown, not hidden.
+- **A mock-up dashboard** ([`/dashboard`](https://charts.productscope.uk/dashboard)) that puts ten of the chart types together in one made-up product view.
 - **Light and dark themes**, and charts resize to their container, so they work on a phone.
 - **Eight categorical colours**, checked for colour-blind separation and contrast. Contrast is below 3:1 for three of the eight, which is covered by legends, tooltips and the data-table view on every chart.
 

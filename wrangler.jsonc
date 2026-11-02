@@ -6,6 +6,6 @@
   "preview_urls": false,
   "workers_dev": false,
   "rules": [
-    { "type": "Data", "globs": ["**/*.woff2"] }
+    { "type": "Data", "globs": ["**/*.woff2", "**/*.png"] }
   ]
 }
