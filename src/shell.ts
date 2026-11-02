@@ -483,9 +483,9 @@ ${o.ld ? `<script type="application/ld+json" nonce="${o.nonce}">${JSON.stringify
 <a class="site-logo" href="/" aria-label="Product Scope Charts - home">${MARK}<span class="site-logo__name">Product Scope</span><span class="site-logo__tag">Charts</span></a>
 <div class="header-right">
 <nav class="main-nav" id="primary-nav" aria-label="Primary"><ul>
-<li><a href="/"${o.path === "/" ? ' aria-current="page"' : ""}>All charts</a></li>
+<li><a href="/"${o.path === "/" ? ' aria-current="page"' : ""}>Charts</a></li>
 <li><a href="/dashboard"${o.path === "/dashboard" ? ' aria-current="page"' : ""}>Dashboard</a></li>
-<li><a href="/toolkit"${o.path === "/toolkit" ? ' aria-current="page"' : ""}>Get the code</a></li>
+<li><a href="/toolkit"${o.path === "/toolkit" ? ' aria-current="page"' : ""}>Code</a></li>
 <li><a href="https://github.com/DavidLortalPM/productscope-charts">GitHub</a></li>
 <li><a class="nav-cta" href="${PS}">Product Scope &#8599;</a></li>
 </ul></nav>
@@ -506,7 +506,7 @@ ${o.cta === false ? "" : CTA}
 <div class="footer-col"><h3>Product Scope</h3><ul class="footer-links--2">
 <li><a href="${PS}/">Home</a></li><li><a href="${PS}/about/">About Product Scope</a></li><li><a href="${PS}/services/">Services</a></li><li><a href="${PS}/case-studies/">Case Studies</a></li><li><a href="${PS}/blog/">Articles</a></li><li><a href="${PS}/contact/">Contact</a></li></ul></div>
 <div class="footer-col"><h3>Charts</h3><ul>
-<li><a href="/">All charts</a></li><li><a href="/toolkit">Get the code</a></li><li><a href="https://github.com/DavidLortalPM/productscope-charts">Source on GitHub</a></li></ul></div>
+<li><a href="/">Charts</a></li><li><a href="/dashboard">Dashboard</a></li><li><a href="/toolkit">Code</a></li><li><a href="https://github.com/DavidLortalPM/productscope-charts">GitHub</a></li></ul></div>
 </div>
 <div class="footer-legal">
 <span>&copy; ${new Date().getFullYear()} Product Scope Ltd. UK-registered consultancy working with clients remotely.</span>
