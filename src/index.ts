@@ -196,8 +196,10 @@ function indexPage(nonce: string): string {
 <section class="section"><div class="container"><div class="split split--text">
 <div class="split__body">
 <h2 class="sr-only">About the charts</h2>
-<p>A made-up product dashboard for a fictional company, built from these charts: KPI tiles, recurring revenue by plan, a waterfall, a usage heatmap and more. It uses ten of the fifteen chart types, and every number in it is made up.</p>
-<p>The charts are plain functions that take arrays of numbers and a few options, so they are easy to point at your own data and easy for an AI assistant to work with. Describe the dashboard you want, give it the code and it can choose the right chart for each question and connect it to your data. Claude built this dashboard that way.</p>
+<p>These started as the charts inside one of my own apps. I pulled them out, swapped in made-up data and published them so anyone building a dashboard, report or admin screen can reuse them without taking on a charting library.</p>
+<p>Each chart is a JavaScript function that takes arrays of numbers and a few options and draws plain SVG. The toolkit is one stylesheet and one script, with no dependencies and no external requests, so it runs under a strict content security policy. Colours, font and corner radius come from CSS variables, so it follows your theme, light or dark.</p>
+<p>Every chart page gives you when to use it, a live demo, the options and a snippet to paste. The charts handle empty data, a single data point and outliers, can be used from the keyboard and can be shown as a table.</p>
+<p>The dashboard is a worked example: ten of the fifteen charts on one page, wired to made-up data. Claude built it, and the charts. The function signatures are small and regular, so the same approach works for your own dashboards: give an AI assistant the toolkit, describe your data and ask it to build the page.</p>
 <p><a href="/toolkit">Get the code</a> or <a href="https://github.com/DavidLortalPM/productscope-charts">view it on GitHub</a>.</p>
 <div class="split__actions"><a class="btn btn--primary" href="/dashboard">Open the dashboard</a></div>
 </div>
@@ -226,7 +228,7 @@ ${faq(HOME_FAQ)}
 </div></section>`;
   const title = "SVG charts, no libraries, built with Claude | Product Scope Charts";
   const description = "SVG charts with no libraries, built with Claude: live demos, copyable code and options for fifteen chart types, all with made-up data.";
-  return layout({ nonce, title, description, path: "/", nav: NAV, hero: { title: "Product Scope Charts", lead: "A free toolkit of fifteen chart types for the dashboards and reports inside a product: line, bars, stacked, donut, heatmap, calendar, treemap, sparkline, gauge, waterfall, flow, ranked bars, small multiples, KPI tiles and data tables. Each page has a live demo, a copyable snippet and the options." }, body, script: THUMBS, ld: pageLd("/", title, description, [["Charts", "/"]]) });
+  return layout({ nonce, title, description, path: "/", nav: NAV, hero: { title: "Product Scope Charts", lead: "Fifteen SVG chart types for the dashboards, reports and admin screens inside a product: line, bars, stacked, donut, heatmap, calendar, treemap, sparkline, gauge, waterfall, flow, ranked bars, small multiples, KPI tiles and data tables." }, body, script: THUMBS, ld: pageLd("/", title, description, [["Charts", "/"]]) });
 }
 
 // A mock-up product dashboard composed from the real chart functions. Everything is made up (seeded, so it is the same on every visit).
