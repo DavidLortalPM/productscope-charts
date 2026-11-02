@@ -329,11 +329,11 @@ ${dpanel("d-6", "d-budget", "Spend against budget", "/gauge", "Gauge")}
 ${dpanel("d-6", "d-rel", "Recent releases", "/data-table", "Data table")}
 </div></div></section>
 <section class="section"><div class="container">
-${csHead("Ten charts, one page", "Open any of these to see its live demo, code and options.", ["/", "All charts"])}
-<div class="feat-list feat-list--titles">${DASH_USES.map(([path, note]) => `<div class="feat-row"><div class="feat-row__body"><h3><a href="${path}">${esc(byPath.get(path)!.name)}</a></h3><p>${esc(note)}</p></div></div>`).join("")}</div>
+${csHead("From charts to working dashboards", "Claude built this dashboard and every chart on this site, working from my direction. I take the same approach to dashboards and reporting in real products, using AI where it speeds up delivery and keeping a person in charge of what gets built.", ["https://productscope.uk/building-a-jira-time-reporting-dashboard-with-claude/", "Read the Jira dashboard article"])}
 </div></section>
 <section class="section section--alt"><div class="container">
-${csHead("From charts to working dashboards", "Claude built this dashboard and every chart on this site, working from my direction. I take the same approach to dashboards and reporting in real products, using AI where it speeds up delivery and keeping a person in charge of what gets built.", ["https://productscope.uk/building-a-jira-time-reporting-dashboard-with-claude/", "Read the Jira dashboard article"])}
+${csHead("Ten charts, one page", "Open any of these to see its live demo, code and options.", ["/", "All charts"])}
+<div class="feat-list feat-list--titles">${DASH_USES.map(([path, note]) => `<div class="feat-row"><div class="feat-row__body"><h3><a href="${path}">${esc(byPath.get(path)!.name)}</a></h3><p>${esc(note)}</p></div></div>`).join("")}</div>
 </div></section>`;
   const title = "Mock-up product dashboard in plain SVG charts | Product Scope Charts";
   const description = "A made-up product dashboard built from the SVG charts on this site: KPI tiles, stacked revenue, a waterfall, a usage heatmap and more. No libraries, all made-up data.";
