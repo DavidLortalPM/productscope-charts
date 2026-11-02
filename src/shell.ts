@@ -230,6 +230,7 @@ ${CHARTS_CSS}
 .split__actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:1.8em}
 .split__media{min-width:0}
 .split--text{align-items:start}
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 @media (max-width:960px){.split--text .split__media{order:0}}
 @media (max-width:960px){.split{grid-template-columns:1fr}.split__media{order:-1}}
 

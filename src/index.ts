@@ -195,7 +195,7 @@ function indexPage(nonce: string): string {
   const body = `
 <section class="section"><div class="container"><div class="split split--text">
 <div class="split__body">
-<h2>See them working together</h2>
+<h2 class="sr-only">About the charts</h2>
 <p>A made-up product dashboard for a fictional company, built from these charts: KPI tiles, recurring revenue by plan, a waterfall, a usage heatmap and more. It uses ten of the fifteen chart types, and every number in it is made up.</p>
 <p>The charts are plain functions that take arrays of numbers and a few options, so they are easy to point at your own data and easy for an AI assistant to work with. Describe the dashboard you want, give it the code and it can choose the right chart for each question and connect it to your data. Claude built this dashboard that way.</p>
 <p><a href="/toolkit">Get the code</a> or <a href="https://github.com/DavidLortalPM/productscope-charts">view it on GitHub</a>.</p>
