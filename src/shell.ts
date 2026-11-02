@@ -229,6 +229,8 @@ ${CHARTS_CSS}
 .code-bar .split__label{margin:0;color:var(--muted)}
 .split__actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:1.8em}
 .split__media{min-width:0}
+.split--text{align-items:start}
+@media (max-width:960px){.split--text .split__media{order:0}}
 @media (max-width:960px){.split{grid-template-columns:1fr}.split__media{order:-1}}
 
 /* Browser frame (projects page) holding the live mock-up */

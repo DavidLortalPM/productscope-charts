@@ -128,18 +128,6 @@ const th={
 };
 document.querySelectorAll('.thumb').forEach(el=>{const f=th[el.getAttribute('data-t')];if(!f)return;setChartWidth(300);setPatterns(false);try{el.append(f())}catch(e){}
   el.querySelectorAll('[tabindex]').forEach(n=>n.removeAttribute('tabindex'))});
-// Home page: a small copy of the dashboard inside the browser frame (same seed and formulas as the dashboard page, so the figures match).
-const hm=document.querySelector('#hero-mock');
-if(hm){try{
-  const r=rng(42),PL=['Starter','Team','Business','Enterprise'],base=[5200,11800,15400,7600],grow=[0.012,0.022,0.026,0.034],M12=MONTHS.slice(-12);
-  const REV=PL.map((p,k)=>M12.map((m,i)=>Math.round(base[k]*Math.pow(1+grow[k],i)*(0.97+r()*0.06))));
-  const MRR=M12.map((_,i)=>sum(REV.map(p=>p[i])));
-  const tiles=[['Monthly recurring revenue',gbp(MRR[11]),MRR.slice(-6)],['Monthly churn','1.9%',[2.6,2.4,2.3,2.2,2.0,1.9]],['Open support tickets','37',[52,49,47,44,41,37]]];
-  setChartWidth(Math.max(240,hm.clientWidth-30));setPatterns(false);
-  hm.append(h('div',{class:'kgrid',style:'grid-template-columns:repeat(3,minmax(0,1fr))'},tiles.map(t=>h('div',{class:'kt'},h('span',{class:'s'},t[0]),h('span',{class:'v'},t[1]),spark(t[2],{w:90,h:16})))),
-    barChart({cats:M12,totals:false,series:PL.map((p,k)=>({name:p,colour:'var(--c'+(k+1)+')',values:REV[k]})),xlabel:(c,t)=>t?monthName(c):MON[+c.slice(5,7)-1],height:130}));
-  hm.querySelectorAll('[tabindex]').forEach(n=>n.removeAttribute('tabindex'));
-}catch(e){}}
 })();
 `;
 
@@ -205,8 +193,7 @@ const FACTS: [string, string, string][] = [
 function indexPage(nonce: string): string {
   const groups = GROUPS.map(g => `<div class="group" id="${g.id}"><h3 class="h2-rule">${esc(g.name)}</h3><p>${esc(g.blurb)}</p><div class="cards">${g.paths.map(x => byPath.get(x)!).map(pg => chartCard(pg, PAGES.indexOf(pg))).join("")}</div></div>`).join("");
   const body = `
-<section class="section"><div class="container"><div class="split">
-<div class="split__media"><a class="split__link" href="/dashboard" aria-label="Open the mock-up dashboard"><div class="pf-browser"><div class="pf-browser__bar"><span class="pf-browser__dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="pf-browser__addr">${LOCK}charts.productscope.uk/dashboard</span></div><div class="pf-browser__view" id="hero-mock" aria-hidden="true"></div></div></a></div>
+<section class="section"><div class="container"><div class="split split--text">
 <div class="split__body">
 <p class="split__label">Free &middot; Open source &middot; MIT licence</p>
 <h2>See them working together</h2>
@@ -214,7 +201,9 @@ function indexPage(nonce: string): string {
 <p>The charts are plain functions that take arrays of numbers and a few options, so they are easy to point at your own data and easy for an AI assistant to work with. Describe the dashboard you want, give it the code and it can choose the right chart for each question and connect it to your data. Claude built this dashboard that way.</p>
 <p><a href="/toolkit">Get the code</a> or <a href="https://github.com/DavidLortalPM/productscope-charts">view it on GitHub</a>.</p>
 <div class="split__actions"><a class="btn btn--primary" href="/dashboard">Open the dashboard</a></div>
-</div></div></div></section>
+</div>
+<div class="split__media"><aside class="cs-side-card" aria-labelledby="short-h"><h3 class="sidebar__title" id="short-h">The short version</h3><ul class="cs-facts-side">${FACTS.map(([ic, t, d]) => `<li><span class="cs-side-ico">${ic}</span><div><span class="fact-t">${esc(t)}</span><span class="fact-d">${esc(d)}</span></div></li>`).join("")}</ul></aside></div>
+</div></div></section>
 <section class="section section--alt" id="charts"><div class="container">
 ${csHead("All fifteen charts", "Each page has a live demo you can change, a copyable snippet and the options. Jump to a group or scroll through them all.")}
 ${chips()}
