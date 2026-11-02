@@ -1,0 +1,10 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "chart-showcase",
+  "compatibility_date": "2026-06-11",
+  "main": "src/index.ts",
+  "preview_urls": false,
+  "rules": [
+    { "type": "Data", "globs": ["**/*.woff2"] }
+  ]
+}

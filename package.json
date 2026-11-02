@@ -1,0 +1,25 @@
+{
+  "name": "productscope-charts",
+  "version": "1.0.0",
+  "description": "Product Scope Charts: fifteen hand-built SVG chart types with no libraries, strict-CSP friendly and accessible. Free to use. All demo data is made up.",
+  "private": true,
+  "type": "module",
+  "homepage": "https://charts.productscope.uk",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DavidLortalPM/productscope-charts.git"
+  },
+  "bugs": {
+    "url": "https://github.com/DavidLortalPM/productscope-charts/issues"
+  },
+  "author": "David Lortal (https://productscope.uk)",
+  "license": "MIT",
+  "keywords": ["charts", "svg", "data-visualization", "accessibility", "cloudflare-workers", "content-security-policy", "no-dependencies", "product-scope"],
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy:productscope": "wrangler deploy --profile productscope"
+  },
+  "devDependencies": {
+    "wrangler": "4.151.3"
+  }
+}
