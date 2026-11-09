@@ -15,7 +15,7 @@ The toolkit is copied into projects rather than installed, so when you update yo
 - **`toolkit/`**: the four files to copy into a project (`tokens.css`, `helpers.js`, `toolkit.css`, `toolkit.js`), generated from the source so they cannot drift.
 - **A Claude skill** (`skills/productscope-charts`) and a Claude Code plugin manifest, so Claude can choose charts and add the toolkit to a project. Plain-text docs for other assistants in `llms.txt` and `llms-full.txt`.
 - **A starter example** (`examples/starter/`): a complete page under a tight Content-Security-Policy.
-- **Continuous integration**: consistency checks, generated docs kept current, a smoke test of every page and a Worker dry-run on each push and pull request. Dependabot for dependencies and workflow actions.
+- **Continuous integration**: consistency checks, generated docs kept current, a smoke test of every page and a Worker dry-run on each push and pull request.
 - Contributing guide, security policy, and issue and pull request templates.
 - `legend()` is now part of the copy-paste helpers (`helpers.js`). The stacked-columns example used it without it being included.
 
