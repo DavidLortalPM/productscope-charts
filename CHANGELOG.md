@@ -22,6 +22,7 @@ The toolkit is copied into projects rather than installed, so when you update yo
 ### Changed
 
 - The home page cards show each chart's group instead of a chart number, and previous and next links on chart pages follow the order shown on the home page.
+- The home page's "Small on purpose" section and stats band are gone; the three steps (copy the code, draw a chart, make it yours) are now the introduction to the FAQ. The currency wording now says what is true: pounds by default, with formatter options on most charts.
 - The README now describes the Content-Security-Policy precisely: scripts are strict (no `eval`, no inline handlers, no external requests); the charts set `style` attributes, so `style-src` needs `'unsafe-inline'` or, tighter, `style-src-attr 'unsafe-inline'`.
 
 ### Fixed
