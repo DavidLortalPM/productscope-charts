@@ -231,7 +231,7 @@ demo({
     ],
     snippet: String.raw`const chart = areaChart({
   xs: weeks,                                   // ['2026-08-03', '2026-08-10', ...]
-  xlabel: (w, i, isTooltip) => (isTooltip ? 'Week of ' : '') + shortDate(w),
+  xlabel: (w, i, isTooltip) => (isTooltip ? 'Week of ' : '') + fmtDate(w),
   mode: 'stacked',                             // or 'percent'
   direct: true,                                // name the bands at the right edge
   series: [
@@ -326,7 +326,7 @@ demo({
 ]);
 const chart = bump({
   xs: weeks,
-  xlabel: (w, i, isTooltip) => shortDate(w),
+  xlabel: (w, i, isTooltip) => fmtDate(w),
   series: ranked,                    // each has ranks: [3, 2, 2, 1, ...]
   tipfmt: v => v + ' conversations',
   label: 'Rank of themes by weekly conversations'

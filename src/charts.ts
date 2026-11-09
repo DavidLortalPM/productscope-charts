@@ -48,7 +48,7 @@ const CHARTS_CSS_CORE = `
 .kt{background:var(--surface);padding:16px 18px;display:flex;flex-direction:column;gap:3px;min-width:0;color:inherit;text-decoration:none}
 a.kt:hover{background:var(--sunk)}
 .kt .v{font-size:clamp(1.5rem,2.6vw,2.1rem);font-weight:800;letter-spacing:-.03em;line-height:1.1}
-.kt .d{font-size:.8rem;font-weight:700}.kt .d.up{color:var(--decide)}.kt .d.down{color:var(--ok)}.kt .d.flat{color:var(--muted)}
+.kt .d{font-size:.8rem;font-weight:700}.kt .d.up{color:var(--decide)}.kt .d.down{color:var(--ok)}.kt .d.flat{color:var(--muted)}.kt .d.good{color:var(--ok)}.kt .d.bad{color:var(--decide)}
 .kt .s{font-size:.8rem;color:var(--muted)}
 .kt svg{margin-top:4px}
 @media (max-width:900px){.kgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}

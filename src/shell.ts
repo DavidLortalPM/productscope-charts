@@ -143,7 +143,6 @@ dl.opts dd{margin:0;color:var(--ink-2)}
 .sprow .v{text-align:right;font-weight:700}
 .sm button.c{font:inherit;color:inherit;text-align:left;width:100%}
 .sm .c[aria-pressed="true"]{border-color:var(--brand);box-shadow:inset 0 0 0 1px var(--brand)}
-.kt .d.good{color:var(--ok)}.kt .d.bad{color:var(--decide)}
 .kt .sk{height:1.4rem;width:60%}
 .kgrid .skel{min-height:20px}
 .dtable caption{caption-side:top;text-align:left;font-weight:700;padding:0 8px 8px;color:var(--ink-2)}

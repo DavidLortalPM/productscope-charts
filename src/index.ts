@@ -1,6 +1,8 @@
 // Public chart showcase. No bindings, no secrets, no real data: every number is generated in the browser.
 import { CHARTS_CSS, CHARTS_JS } from "./charts";
 import { PAGES, byPath, type Page } from "./pages";
+import { GROUPS } from "./groups";
+import { HELPERS } from "./helpers";
 import { esc, layout } from "./shell";
 import dm400 from "./fonts/dm-sans-400.woff2";
 import dm500 from "./fonts/dm-sans-500.woff2";
@@ -92,14 +94,6 @@ const faq = (items: [string, string][]) =>
 const csHead = (title: string, lead: string, btn?: [string, string], id?: string) =>
   `<div class="cs-head"><div class="cs-head__main"><h2${id ? ` id="${id}"` : ""}>${title}</h2><p>${lead}</p></div>${btn ? `<a class="btn btn--outline cs-head__btn" href="${btn[0]}">${esc(btn[1])}</a>` : ""}</div>`;
 
-// Chart groups: used for the chips, the grouped gallery and the "more like this" cards.
-const GROUPS = [
-  { id: "time", name: "Over time", blurb: "See how a measure moves, repeats or clusters across days, weeks and months.", paths: ["/line", "/area", "/sparkline", "/calendar", "/heatmap", "/small-multiples"] },
-  { id: "compare", name: "Comparing", blurb: "Set one thing against another, in order or step by step.", paths: ["/bars", "/hbars", "/waterfall", "/diverging-bars", "/slope", "/bump"] },
-  { id: "spread", name: "Spread and relationships", blurb: "See how values are distributed and whether two measures move together.", paths: ["/histogram", "/box-plot", "/scatter"] },
-  { id: "parts", name: "Parts of a whole", blurb: "Show what a total is made of and where it goes.", paths: ["/stacked", "/donut", "/treemap", "/flow", "/funnel"] },
-  { id: "glance", name: "At a glance", blurb: "Single figures, targets, the words people use and the exact numbers behind them.", paths: ["/gauge", "/kpi-tiles", "/word-cloud", "/data-table"] },
-];
 const groupOf = (path: string) => GROUPS.find(g => g.paths.includes(path))!;
 // Display order: the order the charts appear on the home page, group by group. Previous/next follow it.
 const ORDER: Page[] = GROUPS.flatMap(g => g.paths.map(x => byPath.get(x)!));
@@ -235,7 +229,7 @@ ${csHead("Small on purpose, simple to use", "One stylesheet and one script. Noth
 <div class="cs-stat"><strong>MIT</strong><b>licence</b><p>Free to use and change, including in commercial work.</p></div>
 </div>
 <div class="deliver2-grid">
-<div class="deliver2"><span class="deliver2__num">01</span><h3>Copy the code</h3><p>The toolkit page has the design tokens, three small helpers, one block of CSS and one script. Paste them into your page.</p></div>
+<div class="deliver2"><span class="deliver2__num">01</span><h3>Copy the code</h3><p>The toolkit page has the design tokens, a few small helpers, one block of CSS and one script. Paste them into your page.</p></div>
 <div class="deliver2"><span class="deliver2__num">02</span><h3>Draw a chart</h3><p>Call a chart function such as <code>lineChart</code> with your data and add the result to the page. Every chart page has a snippet to start from.</p></div>
 <div class="deliver2"><span class="deliver2__num">03</span><h3>Make it yours</h3><p>Point the design tokens at your own theme, or ask an AI assistant to build the dashboard for you. Change two helpers if you need a currency other than pounds.</p></div>
 </div>
@@ -379,26 +373,10 @@ ${csHead("Notes", "Three things to know before you embed it.")}
 ${faq(TOOLKIT_FAQ)}
 </div></section>`;
   const title = "Get the SVG chart code: CSS, script and design tokens | Product Scope Charts";
-  const description = "Copy the whole chart toolkit: design tokens, three small helpers, one block of CSS and one script. No dependencies, MIT licensed.";
+  const description = "Copy the whole chart toolkit: design tokens, a few small helpers, one block of CSS and one script. No dependencies, MIT licensed.";
   const code = { "@type": "SoftwareSourceCode", name: "Product Scope Charts", description, codeRepository: "https://github.com/DavidLortalPM/productscope-charts", programmingLanguage: "JavaScript", license: "https://opensource.org/licenses/MIT", author: { "@id": ORG["@id"] }, publisher: { "@id": ORG["@id"] } };
-  return layout({ nonce, title, description, path: "/toolkit", nav: NAV, hero: { title: "Get the code", lead: "Two blocks and a handful of design tokens. Paste the CSS into a style element and the script into a script element, define the three helpers, and call the chart functions." }, body, script: "", ld: pageLd("/toolkit", title, description, [["Charts", "/"], ["Get the code", "/toolkit"]], [code]) });
+  return layout({ nonce, title, description, path: "/toolkit", nav: NAV, hero: { title: "Get the code", lead: "Two blocks and a handful of design tokens. Paste the CSS into a style element and the script into a script element, define the helpers, and call the chart functions." }, body, script: "", ld: pageLd("/toolkit", title, description, [["Charts", "/"], ["Get the code", "/toolkit"]], [code]) });
 }
-
-const HELPERS = `const h = (t, a = {}, ...k) => {            // tiny DOM builder
-  const e = document.createElement(t);
-  for (const [n, v] of Object.entries(a)) {
-    if (n === 'on') for (const [ev, fn] of Object.entries(v)) e.addEventListener(ev, fn);
-    else if (n === 'class') e.className = v;
-    else if (v !== false && v != null) e.setAttribute(n, v);
-  }
-  for (const c of k.flat()) if (c != null && c !== false) e.append(c.nodeType ? c : document.createTextNode(c));
-  return e;
-};
-const gbp = n => new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', maximumFractionDigits: 0 }).format(n || 0);
-const money0 = gbp;                         // default value formatter used by tooltips
-const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const monthName=m=>MON[+m.slice(5,7)-1]+' '+m.slice(0,4);
-const fmtDate=s=>{const m=/^([0-9]{4})-([0-9]{2})-([0-9]{2})/.exec(s||'');return m?(+m[3])+' '+MON[+m[2]-1]+' '+m[1]:(s||'')};`;
 
 export default {
   async fetch(req: Request): Promise<Response> {

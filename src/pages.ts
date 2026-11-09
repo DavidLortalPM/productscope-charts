@@ -80,7 +80,8 @@ demo({
       ["cap", "Clip the axis. Bars above it get a zig-zag break and a ▲ label."],
       ["onClick", "(index) => void. Makes each column a click target."],
       ["totals", "false hides the value above each column (shown automatically for up to 14 columns)."],
-      ["xlabel, tipfmt, yfmt, height", "Formatters and size."],
+      ["xlabel", "(category, isTooltip) => string. Called with one argument for the axis label and with true as the second for the tooltip. Note this differs from the line chart, whose second argument is the index."],
+      ["tipfmt, yfmt, height", "Formatters for the tooltip and the axis, and the height. The defaults format pounds, so pass your own for counts or another currency."],
     ],
     snippet: String.raw`const chart = barChart({
   cats: months,
@@ -116,7 +117,8 @@ demo({
     when: "Use it to show what a total is made of and how that mix changes over time. Keep to eight categories or fewer and let a grey Other absorb the rest.",
     keys: KEYS_COLS,
     opts: [
-      ["cats / series", "As the grouped chart. Series stack in the order given, first at the bottom."],
+      ["cats / series / xlabel", "As the grouped chart (including xlabel(category, isTooltip)). Series stack in the order given, first at the bottom."],
+      ["tipfmt, yfmt", "Formatters for the tooltip and the axis. The defaults format pounds, so pass your own for counts."],
       ["colour", "Use catColor(name) so a category is the same colour on every chart. setCategoryOrder(names) fixes the order once."],
       ["cap", "Clip the axis; tall stacks get a break and a ▲ total."],
       ["onClick", "(index) => void for drill-down."],
@@ -507,7 +509,8 @@ demo({
     keys: "Tiles can be plain or links. Direction is shown with ▲/▼ and words; colour only says whether the change is good or bad.",
     opts: [
       [".kgrid", "A 4-column grid (2 on a phone) with 1px dividers. Children are .kt tiles."],
-      [".kt", "Tile: .s label, .v value, .d change (.good or .bad), optional spark(). Use <a class='kt'> for links."],
+      [".kt", "Tile: .s label, .v value, .d change, optional spark(). Use <a class='kt'> for links."],
+      [".d", "The change line. Colour by meaning with .good (green) or .bad (red). .up is red and .down is green, for measures where rising is bad such as cost. .flat is neutral grey: use it for a measure that is neither good nor bad, such as volume."],
       [".skel", "Shimmer placeholder while loading; respects prefers-reduced-motion."],
     ],
     snippet: String.raw`const tile = (label, value, delta, goodWhen, values) =>
