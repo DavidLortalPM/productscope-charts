@@ -1,6 +1,6 @@
 {
   "name": "productscope-charts",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Product Scope Charts: twenty-four SVG chart types, built with Claude, with no libraries, strict-CSP friendly and accessible. Free to use. All demo data is made up.",
   "private": true,
   "type": "module",
@@ -14,12 +14,30 @@
   },
   "author": "David Lortal (https://productscope.uk)",
   "license": "MIT",
-  "keywords": ["charts", "svg", "data-visualization", "accessibility", "cloudflare-workers", "content-security-policy", "no-dependencies", "product-scope"],
+  "keywords": [
+    "charts",
+    "svg",
+    "data-visualization",
+    "accessibility",
+    "cloudflare-workers",
+    "content-security-policy",
+    "no-dependencies",
+    "product-scope"
+  ],
   "scripts": {
     "dev": "wrangler dev",
+    "docs": "node scripts/build-docs.mjs",
+    "docs:check": "node scripts/build-docs.mjs --check",
+    "smoke": "node scripts/smoke.mjs",
+    "check": "node scripts/check.mjs && node scripts/build-docs.mjs --check && node scripts/smoke.mjs",
+    "build:dry-run": "wrangler deploy --dry-run --outdir .wrangler/dry-run",
     "deploy:productscope": "wrangler deploy --profile productscope"
   },
   "devDependencies": {
+    "esbuild": "0.28.2",
     "wrangler": "4.151.3"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

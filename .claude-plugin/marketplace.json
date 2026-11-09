@@ -1,0 +1,15 @@
+{
+  "name": "productscope",
+  "description": "Free resources from Product Scope.",
+  "owner": {
+    "name": "David Lortal",
+    "url": "https://productscope.uk"
+  },
+  "plugins": [
+    {
+      "name": "productscope-charts",
+      "source": "./",
+      "description": "Build charts and dashboards as plain SVG with the Product Scope Charts toolkit: no library, strict-CSP friendly, accessible by default."
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+# Product Scope Charts
+
+> 24 SVG chart types for dashboards and reports, written from scratch with no libraries or dependencies. Copy one stylesheet and one script into any project. Accessible by default (keyboard, screen-reader labels, colour-blind-checked palette, optional patterns, a table view), light and dark themes, MIT licensed. All demo data is made up.
+
+To build with it: copy the four files in toolkit/ into the project (design tokens, helpers, CSS, script), open the page for the chart you need, and call its function with arrays of numbers and a few options.
+
+## Start here
+
+- [Getting started](https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/docs/getting-started.md): copy the toolkit, draw a first chart
+- [Concepts and conventions](https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/docs/concepts.md): theming, sizing, colours, accessibility, edge cases, CSP
+- [Shared functions and helpers](https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/docs/api.md): setChartWidth, setCategoryOrder, dataTable, spark, hbars and friends
+- [Everything in one file](https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/llms-full.txt): all of the above plus every chart's options and example
+
+## Toolkit files (copy these into your project)
+
+- [toolkit/tokens.css](https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/toolkit/tokens.css): design tokens, light and dark
+- [toolkit/helpers.js](https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/toolkit/helpers.js): h, money0, monthName, fmtDate, legend. Define before the script
+- [toolkit/toolkit.css](https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/toolkit/toolkit.css): chart styles
+- [toolkit/toolkit.js](https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/toolkit/toolkit.js): all the chart functions
+
+## Charts
+
+### Over time
+
+- [Line (lineChart)](https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/docs/charts/line.md): One or a few series over time, with a typical-value line and an optional comparison.
+- [Stacked area (areaChart)](https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/docs/charts/area.md): Volume over time, split into themes, or the same data as a share of the total.
+- [Sparkline (spark)](https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/docs/charts/sparkline.md): A tiny trend with no axes, for tables, tiles and lists.
+- [Calendar (calendar)](https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/docs/charts/calendar.md): One cell per day, laid out in weeks, to show rhythm and one-off spikes.
+- [Heatmap (heatmap)](https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/docs/charts/heatmap.md): A grid of rows against columns, shaded by value, with clear no-data cells.
+- [Small multiples (markup + spark)](https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/docs/charts/small-multiples.md): One mini chart per category on a shared layout, with a detail chart for the one you pick.
+
+### Comparing
+
+- [Grouped bars (barChart)](https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/docs/charts/bars.md): Compare two measures side by side per period, with a derived line on top.
+- [Ranked bars (hbars)](https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/docs/charts/hbars.md): A top-N list with a bar per row, a detail line and optional click-through.
+- [Waterfall (waterfall)](https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/docs/charts/waterfall.md): How a starting number becomes an ending number, step by step.
+- [Diverging bars (divergingBars)](https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/docs/charts/diverging-bars.md): What went up and what went down: bars either side of a zero line, biggest rise at the top.
+- [Slope chart (slope)](https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/docs/charts/slope.md): Two moments side by side, one line per item, so rises and falls read at a glance.
+- [Bump chart (bump)](https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/docs/charts/bump.md): Rank over time: who is first this week, and how each one got there.
+
+### Spread and relationships
+
+- [Histogram (histogram)](https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/docs/charts/histogram.md): How a measure is spread: thread length, thread time or cost per response, in bars.
+- [Box plot (boxPlot)](https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/docs/charts/box-plot.md): Compare the spread of a measure across groups: median, quartiles, whiskers and outliers.
+- [Scatter and bubble (scatter)](https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/docs/charts/scatter.md): Two measures against each other, one dot per item, with size, groups and a trend line.
+
+### Parts of a whole
+
+- [Stacked (barChart)](https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/docs/charts/stacked.md): Parts of a whole per period, one stable colour per category.
+- [Donut (donut)](https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/docs/charts/donut.md): Share of a total, with the hovered slice read out in the centre.
+- [Treemap (treemap)](https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/docs/charts/treemap.md): Area proportional to value, packed into a rectangle.
+- [Flow (flow)](https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/docs/charts/flow.md): Where money comes from and where it goes, as proportional ribbons.
+- [Funnel (funnel)](https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/docs/charts/funnel.md): A journey where each step can only lose people, with the drop-off between steps.
+
+### At a glance
+
+- [Gauge (gauge)](https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/docs/charts/gauge.md): Progress against a budget or limit, with the state spelled out in words.
+- [KPI tiles (markup + spark)](https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/docs/charts/kpi-tiles.md): Headline numbers with a change and a sparkline, plus a loading skeleton.
+- [Word cloud (wordCloud)](https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/docs/charts/word-cloud.md): The words people use most, sized by how often they appear, with optional colour for rising and falling.
+- [Data table (dataTable)](https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/docs/charts/data-table.md): The accessible twin of every chart: plain numbers in a real table.
+
+## Other
+
+- [Live demos](https://charts.productscope.uk): every chart with options, empty and one-point states
+- [Claude skill](https://github.com/DavidLortalPM/productscope-charts/tree/main/skills/productscope-charts): install it so Claude knows how to use these charts
+- [Source](https://github.com/DavidLortalPM/productscope-charts)

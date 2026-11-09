@@ -1,0 +1,1489 @@
+# Product Scope Charts: full documentation
+
+24 SVG chart types. No libraries. MIT licensed. Source: https://github.com/DavidLortalPM/productscope-charts. Live demos: https://charts.productscope.uk.
+The code to copy is in toolkit/ (tokens.css, helpers.js, toolkit.css, toolkit.js); fetch them from https://raw.githubusercontent.com/DavidLortalPM/productscope-charts/main/toolkit/.
+
+# Getting started
+
+Product Scope Charts is a set of SVG chart functions. There is nothing to install: you copy four small files into your project, load them in order, and call a function with your data. Each function returns a DOM node that you append where you want the chart.
+
+## 1. Copy the toolkit
+
+The four files in [`toolkit/`](../toolkit) are all you need. (They are also on the [Get the code](https://charts.productscope.uk/toolkit) page.)
+
+| File | What it is |
+| --- | --- |
+| `tokens.css` | Design tokens as CSS variables (colours, font, corner radius), light and dark. Edit the values to match your theme and keep the names. |
+| `helpers.js` | A few helper functions the script expects to find: `h` (DOM builder), `money0` and `gbp` (currency), `monthName`, `fmtDate` and `legend`. Define them before the toolkit. |
+| `toolkit.css` | The chart styles. |
+| `toolkit.js` | Every chart function. |
+
+## 2. Load them in order
+
+They are classic scripts that define globals, not ES modules, so order matters: `helpers.js` first, then `toolkit.js`, then your own code.
+
+```html
+<link rel="stylesheet" href="/toolkit/tokens.css">
+<link rel="stylesheet" href="/toolkit/toolkit.css">
+
+<div id="spend"></div>
+
+<script src="/toolkit/helpers.js"></script>
+<script src="/toolkit/toolkit.js"></script>
+<script src="/app.js"></script>
+```
+
+## 3. Draw a chart
+
+```js
+const host = document.getElementById('spend');
+setChartWidth(host.clientWidth);          // size charts to their container (see "Sizing")
+host.replaceChildren(
+  lineChart({
+    xs: ['2026-04', '2026-05', '2026-06', '2026-07'],
+    xlabel: monthName,
+    series: [{ name: 'Spend', values: [1820, 2310, 1960, 2540], colour: 'var(--c1)', area: true }],
+    label: 'Monthly spend, April to July 2026'   // read out by screen readers
+  })
+);
+```
+
+Open [the page for any chart](charts/README.md) for its options and a complete example.
+
+## 4. Redraw when the container resizes
+
+Charts are drawn at the width you give `setChartWidth`, so redraw when the container changes size:
+
+```js
+function draw() {
+  setChartWidth(host.clientWidth);
+  host.replaceChildren(lineChart({ /* ... */ }));
+}
+draw();
+new ResizeObserver(draw).observe(host);
+```
+
+## A working example
+
+[`examples/starter/`](../examples/starter) is a complete page that draws a line chart, grouped bars and a donut, with a table view and a patterns switch, under a strict Content-Security-Policy. Serve the repository root with any static server and open `/examples/starter/`:
+
+```
+python -m http.server 8200
+```
+
+A dashboard recipe (cards, a grid, KPI tiles, a "Show as table" switch on every chart) is in [concepts](concepts.md#a-dashboard-layout).
+
+## Things to know before you use it
+
+- **The toolkit styles charts, not your page.** Set your own `body` background, colour, font and a maximum page width (a few lines of CSS: see [concepts](concepts.md#page-styles-are-yours)). The dark theme needs it.
+- **Pounds by default.** Pass `yfmt` and `tipfmt` (or `fmt`) for counts or another currency. Five charts (calendar, treemap, gauge, waterfall, flow) have no such option and always format money: see [number formats](concepts.md#currency-and-number-formats).
+- **Several charts on a page.** Call `setChartWidth` with each container's own width right before drawing that chart: see [concepts](concepts.md#several-charts-on-one-page).
+- **Callbacks in the examples** such as `openMonth` or `openCategory` are your own functions. The toolkit only calls them.
+- **Content-Security-Policy.** No `eval`, no external requests, no inline event handlers. See [concepts](concepts.md#content-security-policy) for the exact policy it needs.
+- **Made-up data.** Every number on the demo site is generated in the browser from a seeded random generator. Nothing private is in this repository.
+
+## Using it with an AI assistant
+
+Install the Claude skill, or point an assistant at [`llms-full.txt`](../llms-full.txt). See [using it with AI](using-with-ai.md).
+
+# Concepts and conventions
+
+These apply to every chart. Each chart's own page covers its options.
+
+## How the toolkit works
+
+- Every chart is a function that takes an options object and **returns a DOM node** (an `<svg>`, or for a few charts a `<div>`). You append it where you want it: `host.replaceChildren(chart)`.
+- The script defines **globals** (`lineChart`, `barChart`, `setChartWidth` and so on). It is not an ES module and there is no build step.
+- Data goes in as plain arrays of numbers and strings. A `null` value means "no data" and leaves a gap rather than drawing a zero.
+- Colours, font and corner radius come from CSS variables, so the charts follow your theme.
+
+## Sizing
+
+Charts are drawn in SVG units that are about one CSS pixel. Call `setChartWidth(px)` with the width of the container **before** drawing, and draw again when the container resizes (a `ResizeObserver` is the simplest way). The value is clamped between 320 and 1000. Drawing at the real width keeps text a readable size on a phone instead of scaling it down with the SVG.
+
+Label counts follow the width: narrow charts show fewer x labels.
+
+## Theming
+
+The charts read the tokens in `tokens.css`: `--bg`, `--surface`, `--sunk`, `--ink`, `--ink-2`, `--muted`, `--line`, `--line-2`, `--accent`, `--accent-ink`, `--ok`, `--guess`, `--decide`, `--c1` to `--c9`, `--f-ui` and `--r`.
+
+- Light values live on `:root`. Dark values apply under `prefers-color-scheme: dark`, and also when you set `data-theme="dark"` on `<html>` (set `data-theme="light"` to force light).
+- `--ok`, `--guess` and `--decide` are the good, warning and bad status colours used by gauges and deltas.
+- Rename nothing. Change values freely, but re-check contrast and colour-blind separation if you change `--c1` to `--c9` (see below).
+
+## Colours
+
+- There are **eight categorical colours**, `--c1` to `--c8`, in a fixed order, plus `--c9`, a grey that stands for "Other".
+- They are checked for colour-blind separation and for lightness and chroma against both themes. On the light theme three of the eight (slots 3, 4 and 5) are below 3:1 contrast against white. That is covered by legends, direct labels, tooltips and the table view on every chart, so never rely on colour alone to carry meaning.
+- Call `setCategoryOrder(names)` once with your category names, most important first. The first eight get `--c1` to `--c8`, in that order, and the rest fold into grey. `catColor(name)` then returns the same colour for a category in every chart, so "Housing" is the same colour in the stacked bars, the donut and the treemap.
+- Keep to eight categories or fewer and let a grey "Other" absorb the rest.
+
+## Accessibility
+
+- **Keyboard.** Charts can be reached with Tab. Column-like charts then use the left and right arrow keys, Home and End to move between columns, and Escape closes the tooltip. Clickable charts activate with Enter.
+- **Screen readers.** Each chart carries an `aria-label` (set it with the `label` option to say what the chart shows), and individual marks announce their name and value.
+- **Tooltips** are one shared element with `role="status"`. They show on hover, on keyboard focus and on touch, and hide on Escape, on scroll and when focus leaves.
+- **Patterns instead of colour.** Call `setPatterns(true)` before drawing and the charts that fill areas overlay a different texture on each colour. This covers line (with area fill), area, bars (grouped and stacked), donut, treemap, histogram, box plot and funnel.
+- **A table as well as a chart.** `dataTable(head, rows, caption)` builds an accessible `<table>`. Offer a "Show as table" switch next to every chart and build the table from the same data. The demo site does exactly this.
+- **Motion.** The only animation is the loading skeleton, which stops under `prefers-reduced-motion`.
+
+## Edge cases
+
+Every chart copes with the awkward cases and shows them, rather than drawing nothing or throwing:
+
+- **Empty data** shows a short sentence instead of an empty plot. Many charts let you set the wording with an `empty` option (check the chart's options).
+- **One data point** is drawn as a single, centred mark with its tooltip.
+- **All zeros** is drawn as zeros, not as a divide-by-zero.
+- **Outliers.** Charts with a `cap` option clip the axis at that value so one huge value does not flatten the rest. The clipped value is drawn at the top with a ▲ and its real value, so the chart never hides it.
+- **Gaps.** A `null` in a series leaves a gap.
+
+## Content-Security-Policy
+
+The toolkit is written to run under a strict policy:
+
+- **Scripts:** no `eval`, no `new Function`, no inline event-handler attributes, no external scripts. Allow your own origin or use a nonce: `script-src 'self'` or `script-src 'nonce-...'`.
+- **Network:** the charts make no requests of any kind (`connect-src 'none'` is fine), load no fonts and load no images. Fonts come from `--f-ui`, so use whatever you already serve.
+- **Styles:** the charts, the legend, `dataTable`, `hbars`, `gauge` and `spark` set `style` attributes on some elements (swatch colours, bar widths, table scrolling), which a policy has to allow. The site uses `style-src 'unsafe-inline'`. A tighter alternative is `style-src 'self'; style-src-attr 'unsafe-inline'`, which keeps `<style>` elements locked down and allows only attributes. `examples/starter/` in the repository uses that second form and runs without a single violation.
+- **A `<meta http-equiv="Content-Security-Policy">` tag works** for all of the above, if you cannot set a header. (`frame-ancestors` is ignored in a meta tag; it needs a header.) Add `img-src data:` and a `<link rel="icon" href="data:,">` if you want to stop the browser requesting a favicon.
+
+This is the policy the live site sends:
+
+```
+default-src 'none'; script-src 'nonce-<per-request>'; style-src 'unsafe-inline'; img-src data:; font-src 'self';
+base-uri 'none'; form-action 'none'; frame-ancestors 'none'; connect-src 'none'
+```
+
+## Embedding the script as a template literal
+
+The site stores the toolkit script and CSS as TypeScript template literals, so they contain no backticks and no dollar-brace sequences. If you embed them the same way (in a Worker, a server template or a bundler string), keep it that way when you edit them: use string concatenation, never a template string, inside the script.
+
+## Currency and number formats
+
+Out of the box the toolkit formats **pounds**. `money0` and `gbp` (in `helpers.js`) format whole pounds, and `compact()` (in `toolkit.js`) abbreviates with a `£` sign (`£2.3k`, `£1.2m`). For counts, percentages or another currency you have to take control, and how depends on the chart:
+
+| Chart | How to change the number format |
+| --- | --- |
+| Line, bars and stacked, area | `yfmt` for the axis and `tipfmt` for tooltips. Pass both: the defaults are pounds. |
+| Donut, ranked bars, heatmap | `fmt` (the heatmap also takes `unit`). |
+| Histogram, scatter, box plot, funnel, slope, diverging bars, bump, word cloud | Their own `fmt`, `xfmt`, `yfmt`, `tipfmt` or `unit` options, none of which default to pounds. See the chart's page. |
+| **Calendar, treemap, gauge, waterfall, flow** | **No option.** They always format with `money0` and `compact`. To show something other than pounds, change those two functions (`money0` in `helpers.js`, `compact` in `toolkit.js`) for your whole project. |
+
+A non-money dashboard should therefore pass `yfmt` and `tipfmt` to every line and bar chart, and avoid the five charts without an option, or change `money0` and `compact` globally.
+
+## Page styles are yours
+
+The toolkit styles the charts and their cards, nothing else. It sets no styles on `body`, headings, paragraphs or buttons, and `.wgrid` has no maximum width. Provide a minimum yourself:
+
+```css
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f-ui); line-height: 1.55; }
+button { font: inherit; }
+.page { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+```
+
+(The starter example's `starter.css` is a working version.) Without a `body` background and colour the dark theme will not apply to the page itself.
+
+## Several charts on one page
+
+`setChartWidth` is global state: it sets the width for the next chart you draw. With charts in containers of different widths (half-width and full-width cards), call it with **each container's own width immediately before drawing that chart**:
+
+```js
+function draw(host, build) {
+  setChartWidth(host.clientWidth);
+  host.replaceChildren(build());
+}
+```
+
+Redraw on resize with a `ResizeObserver`, and ignore changes of a few pixels so that drawing a chart cannot trigger another redraw:
+
+```js
+let last = 0;
+new ResizeObserver(() => {
+  const w = document.body.clientWidth;
+  if (Math.abs(w - last) < 6) return;
+  last = w;
+  drawEverything();
+}).observe(document.body);
+```
+
+## A "Show as table" switch
+
+Offer a table next to every chart. Build it with `dataTable` from the same data, and swap it in. The toolkit styles `.mini` buttons (a pill that darkens when `aria-pressed="true"`):
+
+```html
+<section class="widget" aria-labelledby="h-spend">
+  <header>
+    <div><h2 id="h-spend">Monthly spend</h2><p class="sub">Spend in each month.</p></div>
+    <div class="wtools"><button type="button" class="mini" id="spend-table" aria-pressed="false">Show as table</button></div>
+  </header>
+  <div id="spend"></div>
+</section>
+```
+
+```js
+let asTable = false;
+function drawSpend() {
+  const host = document.getElementById('spend');
+  setChartWidth(host.clientWidth);
+  host.replaceChildren(asTable
+    ? dataTable(['Month', 'Spend'], months.map((m, i) => [monthName(m), money0(spend[i])]), 'Monthly spend')
+    : lineChart({ xs: months, xlabel: monthName, series: [{ name: 'Spend', values: spend, colour: 'var(--c1)' }], label: 'Monthly spend' }));
+}
+document.getElementById('spend-table').addEventListener('click', e => {
+  asTable = !asTable;
+  e.currentTarget.setAttribute('aria-pressed', String(asTable));
+  drawSpend();
+});
+```
+
+## A dashboard layout
+
+`.wgrid` is a 12-column grid, `.w-full`, `.w-twothird`, `.w-half` and `.w-third` set a card's width (all of them go full width below 1000px), and `.widget` is the card, with a `header`, `.sub` for a subtitle and `.wtools` for its buttons (as in the markup above). Put the headline numbers (`.kgrid` of `.kt` tiles) above the grid.
+
+```html
+<div class="page">
+  <div class="kgrid" id="kpis"></div>
+  <div class="wgrid">
+    <section class="widget w-half">...</section>
+    <section class="widget w-half">...</section>
+    <section class="widget w-full">...</section>
+  </div>
+</div>
+```
+
+For KPI tiles, `.d` is the change line: `.good` and `.bad` colour it by meaning, `.up` (red) and `.down` (green) are for measures where rising is bad such as cost, and `.flat` is neutral grey for a measure that is neither good nor bad, like volume.
+
+## Global names
+
+The toolkit defines top-level globals: every chart function, and also `h`, `sv`, `sum`, `median`, `quantile`, `compact`, `gbp`, `money0`, `legend`, `MON`, `SLOT`, `CW`, `TIP`, `UID` and more. In a classic script, redeclaring one of them with `const` or `let` throws. Put your own code in a function, an IIFE or a `<script type="module">` (a module can read the globals), or give your names different spellings.
+
+## Small things worth knowing
+
+- `spark` always draws in `--accent`; it has no colour option. It marks the latest point with a dot, and in `bars` mode highlights the latest bar.
+- `lineChart` starts the y-axis at zero unless you pass `yMin`.
+- Tooltips are one element added to `document.body`, styled by `.tip` in `toolkit.css`.
+- Percentage points are not percentages: a share that moves from 73% to 77% went up 4 points, not 5.5%. Format the change in your own words for ratios.
+
+# Shared functions and helpers
+
+The chart functions are documented on their own pages ([all charts](charts/README.md)). These are the smaller functions they share, which you will also use directly.
+
+## Setup
+
+- **`setChartWidth(px)`**: set the width charts are drawn at, in SVG units (about CSS pixels). Clamped to 320 to 1000. Call it before drawing a chart and again on resize. Default 1000.
+- **`setCategoryOrder(names)`**: give your category names in priority order. The first eight get `--c1` to `--c8`; the rest are grey. Call it once.
+- **`catColor(name)`**: the colour (a CSS `var(--cN)` string) for a category, or `var(--c9)` grey if it has no slot. Use it so a category keeps its colour across charts.
+- **`setPatterns(on)`**: `true` makes charts that fill areas (line, area, bars, donut, treemap, histogram, box plot, funnel) overlay a texture on each colour, so they do not depend on colour alone. Applies to charts drawn after the call.
+
+## Building things
+
+- **`h(tag, attrs, ...children)`**: a tiny DOM builder (in `helpers.js`). `attrs.class` sets the class, `attrs.on` is an object of event listeners (`{ click: fn }`), any other attribute is set with `setAttribute`. `false` and `null` attributes and children are skipped. Children can be nodes, strings or arrays.
+- **`sv(tag, attrs, ...children)`**: the same, for SVG elements.
+- **`legend(items)`**: a legend row from `[{ name, colour }]`. Put it next to a chart that uses several colours.
+- **`dataTable(head, rows, caption)`**: an accessible, horizontally scrolling `<table>`. `head` is an array of column titles, `rows` an array of arrays, `caption` an optional title. The first column is left-aligned, the rest are right-aligned numbers. Use it for the "Show as table" view.
+
+## Small charts that are plain functions
+
+These are documented on their chart pages, but are worth knowing as building blocks:
+
+- **`spark(values, { w, h, fluid, label, bars })`**: a tiny axis-less trend. `fluid: true` makes it fill its container; `bars: true` draws columns. Always print the number beside it.
+- **`hbars(items, { fmt, empty })`**: ranked horizontal bars from `[{ label, value, colour, sub, tag, onClick }]`.
+- **`gauge({ label, value, target })`**: a bar against a target with the state (on track, nearly, over) spelled out in words.
+
+## Formatting and maths
+
+- **`money0(n)`, `gbp(n)`**: whole pounds, `£1,234`. Used as the default tooltip formatter. Change for another currency.
+- **`compact(n)`**: `£2.3k`, `£1.2m`. Hard-codes the pound sign.
+- **`monthName('2026-04')`**: `Apr 2026`. **`fmtDate('2026-04-09')`**: `9 Apr 2026`.
+- **`sum(a)`, `median(a)`, `quantile(a, q)`**: with `q` from 0 to 1. `null` values count as zero in `sum`.
+- **`niceStep(range, n)`, `yTicks(min, max, n)`**: tidy axis steps and tick values.
+
+## Tooltips
+
+Charts show their own tooltips. If you draw your own marks and want the same tooltip, use:
+
+- **`showTip(x, y, title, rows)`**: `x` and `y` are viewport coordinates, `rows` is `[{ label, value, colour }]`.
+- **`hideTip()`**: hide it. It also hides on scroll and on Escape.
+
+# Chart reference
+
+## Line
+
+One or a few series over time, with a typical-value line and an optional comparison.
+
+- **Function:** `lineChart`
+- **Group:** Over time
+- **Live demo:** [charts.productscope.uk/line](https://charts.productscope.uk/line) (toggle the options, empty and one-point states)
+- **Needs:** `toolkit/tokens.css`, `toolkit/helpers.js`, `toolkit/toolkit.css`, `toolkit/toolkit.js`. See [getting started](../getting-started.md).
+
+### When to use it
+
+Use it to show how one measure moves over time and to spot the odd month. Cap the axis when one outlier would flatten everything else; the ▲ label still tells the truth.
+
+### Options
+
+- `xs`: Array of x values (strings). Any length, including 0 or 1.
+- `series`: [{ name, values, colour, area, dash, width, faint, points }]. A null value leaves a gap.
+- `cap`: Clip the y-axis here. Values above it are drawn at the top with a ▲ and their real value.
+- `threshold`: { value, label }: a dashed reference line, e.g. the typical month.
+- `xlabel`: (x, i, isTooltip) => string. Short label for the axis, long label for the tooltip.
+- `yfmt / tipfmt`: Number formatters for the axis and the tooltip.
+- `yMin, height, maxLabels`: Axis floor, pixel-ish height, and how many x labels to show at most.
+- `label / empty`: aria-label for screen readers; text shown when there is no data.
+
+### Example
+
+```js
+const chart = lineChart({
+  xs: months,                              // ['2025-04', '2025-05', ...]
+  xlabel: (m, i, isTooltip) => monthName(m),
+  series: [
+    { name: 'Spend', values: spend, colour: 'var(--c1)', area: true },
+    { name: 'Same month last year', values: lastYear,
+      colour: 'var(--muted)', dash: '2 4', width: 1.5, faint: true }
+  ],
+  cap: 3600,                               // clip the axis, label the outlier with a ▲
+  threshold: { value: 2310, label: 'typical month £2.3k' },
+  yfmt: v => compact(v),                   // axis labels
+  label: 'Monthly spend',                  // aria-label
+  empty: 'No spending in this range'
+});
+document.querySelector('#host').append(chart);
+```
+
+Other toolkit functions used above: `compact`. Names such as `openMonth` or `openCategory` in the example are your own callbacks, not part of the toolkit.
+
+### Keyboard and screen readers
+
+Focus the chart with Tab, then use ← → Home End to move between columns; Esc closes the tooltip. On a phone, touch a column.
+
+### Edge cases
+
+Empty, one-point and all-zero data are handled and drawn on purpose, not hidden. See [concepts](../concepts.md#edge-cases).
+
+
+## Grouped bars
+
+Compare two measures side by side per period, with a derived line on top.
+
+- **Function:** `barChart`
+- **Group:** Comparing
+- **Live demo:** [charts.productscope.uk/bars](https://charts.productscope.uk/bars) (toggle the options, empty and one-point states)
+- **Needs:** `toolkit/tokens.css`, `toolkit/helpers.js`, `toolkit/toolkit.css`, `toolkit/toolkit.js`. See [getting started](../getting-started.md).
+
+### When to use it
+
+Use it to compare two things per period (money in against money out) and show a third derived number, such as the difference, as a line. Columns are clickable for drill-down.
+
+### Options
+
+- `cats`: Array of category labels, one per column group.
+- `series`: [{ name, values, colour }]. In grouped mode each series gets its own bar.
+- `mode`: 'grouped' or 'stacked' (the default). See the stacked page.
+- `lines`: [{ name, values, colour }] drawn over the bars; may go below zero.
+- `cap`: Clip the axis. Bars above it get a zig-zag break and a ▲ label.
+- `onClick`: (index) => void. Makes each column a click target.
+- `totals`: false hides the value above each column (shown automatically for up to 14 columns).
+- `xlabel`: (category, isTooltip) => string. Called with one argument for the axis label and with true as the second for the tooltip. Note this differs from the line chart, whose second argument is the index.
+- `tipfmt, yfmt, height`: Formatters for the tooltip and the axis, and the height. The defaults format pounds, so pass your own for counts or another currency.
+
+### Example
+
+```js
+const chart = barChart({
+  cats: months,
+  xlabel: monthName,
+  mode: 'grouped',
+  series: [
+    { name: 'Money in',  colour: 'var(--c3)', values: income },
+    { name: 'Spending',  colour: 'var(--c2)', values: spending }
+  ],
+  lines: [{ name: 'Saved', colour: 'var(--ink)', values: saved }],
+  cap: 4200,                       // bars above this get a break and a ▲ label
+  onClick: i => openMonth(months[i]),
+  label: 'Money in, spending and saved by month'
+});
+```
+
+Names such as `openMonth` or `openCategory` in the example (where present) are your own callbacks, not part of the toolkit.
+
+### Keyboard and screen readers
+
+Focus the chart with Tab, then use ← → Home End to move between columns; Esc closes the tooltip. On a phone, touch a column.
+
+### Edge cases
+
+Empty, one-point and all-zero data are handled and drawn on purpose, not hidden. See [concepts](../concepts.md#edge-cases).
+
+
+## Stacked
+
+Parts of a whole per period, one stable colour per category.
+
+- **Function:** `barChart`
+- **Group:** Parts of a whole
+- **Live demo:** [charts.productscope.uk/stacked](https://charts.productscope.uk/stacked) (toggle the options, empty and one-point states)
+- **Needs:** `toolkit/tokens.css`, `toolkit/helpers.js`, `toolkit/toolkit.css`, `toolkit/toolkit.js`. See [getting started](../getting-started.md).
+
+### When to use it
+
+Use it to show what a total is made of and how that mix changes over time. Keep to eight categories or fewer and let a grey Other absorb the rest.
+
+### Options
+
+- `cats / series / xlabel`: As the grouped chart (including xlabel(category, isTooltip)). Series stack in the order given, first at the bottom.
+- `tipfmt, yfmt`: Formatters for the tooltip and the axis. The defaults format pounds, so pass your own for counts.
+- `colour`: Use catColor(name) so a category is the same colour on every chart. setCategoryOrder(names) fixes the order once.
+- `cap`: Clip the axis; tall stacks get a break and a ▲ total.
+- `onClick`: (index) => void for drill-down.
+- `setPatterns(true)`: Switches every fill to colour plus texture (call before drawing).
+
+### Example
+
+```js
+setCategoryOrder(['Groceries', 'Housing', 'Eating out', 'Transport', 'Travel', 'Leisure', 'Health']);
+
+const chart = barChart({
+  cats: months,
+  xlabel: monthName,
+  series: categories.map(name => ({
+    name,
+    colour: catColor(name),        // stable per name; unknown names fall back to grey
+    values: byCategory[name]
+  })),
+  cap: 4200,
+  onClick: i => openMonth(months[i]),
+  label: 'Spending by category and month'
+});
+document.querySelector('#host').append(chart, legend(categories.map(n => ({ name: n, colour: catColor(n) }))));
+```
+
+Other toolkit functions used above: `setCategoryOrder`, `catColor`. Names such as `openMonth` or `openCategory` in the example are your own callbacks, not part of the toolkit.
+
+### Keyboard and screen readers
+
+Focus the chart with Tab, then use ← → Home End to move between columns; Esc closes the tooltip. On a phone, touch a column.
+
+### Edge cases
+
+Empty, one-point and all-zero data are handled and drawn on purpose, not hidden. See [concepts](../concepts.md#edge-cases).
+
+
+## Donut
+
+Share of a total, with the hovered slice read out in the centre.
+
+- **Function:** `donut`
+- **Group:** Parts of a whole
+- **Live demo:** [charts.productscope.uk/donut](https://charts.productscope.uk/donut) (toggle the options, empty and one-point states)
+- **Needs:** `toolkit/tokens.css`, `toolkit/helpers.js`, `toolkit/toolkit.css`, `toolkit/toolkit.js`. See [getting started](../getting-started.md).
+
+### When to use it
+
+Use it for a handful of parts that add up to one whole, when the share matters more than the exact amounts. Fold small slices into Other; more than six or seven slices want a bar list or treemap instead.
+
+### Options
+
+- `parts`: [{ name, value, colour }]. Order is drawn clockwise from 12 o'clock.
+- `centre`: { value, label } shown in the hole until a slice is hovered or focused.
+- `size`: Pixel size of the square (default 220).
+- `fmt`: Formatter for the aria-label of each slice.
+- `onClick`: (part) => void.
+
+### Example
+
+```js
+const chart = donut({
+  parts: [
+    { name: 'Housing',   value: 1210, colour: catColor('Housing') },
+    { name: 'Groceries', value: 438,  colour: catColor('Groceries') },
+    { name: 'Other',     value: 164,  colour: 'var(--c9)' }
+  ],
+  centre: { value: '£1,812', label: 'September' },
+  size: 240,
+  onClick: part => openCategory(part.name),
+  label: 'Spending by category, September'
+});
+```
+
+Other toolkit functions used above: `catColor`. Names such as `openMonth` or `openCategory` in the example are your own callbacks, not part of the toolkit.
+
+### Keyboard and screen readers
+
+Tab through the slices; each announces its name, amount and share. Hover or focus a slice to read its share in the centre.
+
+### Edge cases
+
+Empty, one-point and all-zero data are handled and drawn on purpose, not hidden. See [concepts](../concepts.md#edge-cases).
+
+
+## Heatmap
+
+A grid of rows against columns, shaded by value, with clear no-data cells.
+
+- **Function:** `heatmap`
+- **Group:** Over time
+- **Live demo:** [charts.productscope.uk/heatmap](https://charts.productscope.uk/heatmap) (toggle the options, empty and one-point states)
+- **Needs:** `toolkit/tokens.css`, `toolkit/helpers.js`, `toolkit/toolkit.css`, `toolkit/toolkit.js`. See [getting started](../getting-started.md).
+
+### When to use it
+
+Use it to spot patterns across two dimensions, such as category against month. Shade each row on its own scale when rows differ in size and you care about shape.
+
+### Options
+
+- `rows / cols`: Arrays of labels. cols can be formatted with collabel.
+- `matrix`: matrix[row][col] numbers. null means no data (drawn as an empty cell, not zero).
+- `norm`: 'row' scales each row to its own maximum; anything else uses one global scale.
+- `showValues`: Prints compact values inside dark cells when they are wide enough.
+- `fmt / unit`: Value formatter and the label used in the tooltip.
+- `onClick`: (rowIndex, colIndex) => void.
+
+### Example
+
+```js
+const chart = heatmap({
+  rows: ['Groceries', 'Housing', 'Eating out'],
+  cols: months,                    // ['2025-10', '2025-11', ...]
+  collabel: monthName,
+  matrix: [
+    [412, 389, 455, /* ... */],
+    [1150, 1150, 1210, /* ... */],
+    [188, null, 301, /* ... null = no data */]
+  ],
+  norm: 'row',                     // each row on its own scale
+  showValues: true,
+  fmt: v => '£' + Math.round(v),
+  onClick: (r, c) => openCell(r, c),
+  label: 'Spending by category and month'
+});
+```
+
+Names such as `openMonth` or `openCategory` in the example (where present) are your own callbacks, not part of the toolkit.
+
+### Keyboard and screen readers
+
+Tab to a cell to read its value; click or Enter to drill down. The grid scrolls sideways on a phone.
+
+### Edge cases
+
+Empty, one-point and all-zero data are handled and drawn on purpose, not hidden. See [concepts](../concepts.md#edge-cases).
+
+
+## Calendar
+
+One cell per day, laid out in weeks, to show rhythm and one-off spikes.
+
+- **Function:** `calendar`
+- **Group:** Over time
+- **Live demo:** [charts.productscope.uk/calendar](https://charts.productscope.uk/calendar) (toggle the options, empty and one-point states)
+- **Needs:** `toolkit/tokens.css`, `toolkit/helpers.js`, `toolkit/toolkit.css`, `toolkit/toolkit.js`. See [getting started](../getting-started.md).
+
+### When to use it
+
+Use it for daily values over months, when weekday habits and single heavy days are the story. Shading is clipped at the 95th percentile so one huge day does not wash out the rest.
+
+### Options
+
+- `days`: A Map of 'YYYY-MM-DD' to number. Missing days inside the range count as zero.
+- `onClick`: (dateString) => void.
+- `label`: aria-label for the whole graphic.
+
+### Example
+
+```js
+const days = new Map([
+  ['2026-01-01', 42.5],
+  ['2026-01-02', 0],
+  ['2026-01-03', 118.9]
+  // ... one entry per day
+]);
+
+const chart = calendar({
+  days,
+  onClick: date => openDay(date),   // 'YYYY-MM-DD'
+  label: 'Daily spending calendar'
+});
+```
+
+Names such as `openMonth` or `openCategory` in the example (where present) are your own callbacks, not part of the toolkit.
+
+### Keyboard and screen readers
+
+Hover a day for its date and value; click to drill down. The calendar scrolls sideways on a phone.
+
+### Edge cases
+
+Empty, one-point and all-zero data are handled and drawn on purpose, not hidden. See [concepts](../concepts.md#edge-cases).
+
+
+## Treemap
+
+Area proportional to value, packed into a rectangle.
+
+- **Function:** `treemap`
+- **Group:** Parts of a whole
+- **Live demo:** [charts.productscope.uk/treemap](https://charts.productscope.uk/treemap) (toggle the options, empty and one-point states)
+- **Needs:** `toolkit/tokens.css`, `toolkit/helpers.js`, `toolkit/toolkit.css`, `toolkit/toolkit.js`. See [getting started](../getting-started.md).
+
+### When to use it
+
+Use it to show how a whole divides across many categories at once, when you want to see the big pieces at a glance. Small blocks lose their labels but stay hoverable and keyboard-focusable.
+
+### Options
+
+- `items`: [{ label, value, colour }]. Zero and negative values are dropped; sorted largest first.
+- `height`: Chart height (width follows the container).
+- `onClick`: (item) => void.
+- `setPatterns(true)`: Adds a texture per block so colour is not the only cue.
+
+### Example
+
+```js
+const chart = treemap({
+  items: [
+    { label: 'Housing',   value: 13850, colour: catColor('Housing') },
+    { label: 'Groceries', value: 5120,  colour: catColor('Groceries') },
+    { label: 'Travel',    value: 4710,  colour: catColor('Travel') }
+  ],
+  height: 340,
+  onClick: item => openCategory(item.label),
+  label: 'Spending by category, last 12 months'
+});
+```
+
+Other toolkit functions used above: `catColor`. Names such as `openMonth` or `openCategory` in the example are your own callbacks, not part of the toolkit.
+
+### Keyboard and screen readers
+
+Tab through the blocks; hover or focus for amount and share. Labels appear only where a block is big enough.
+
+### Edge cases
+
+Empty, one-point and all-zero data are handled and drawn on purpose, not hidden. See [concepts](../concepts.md#edge-cases).
+
+
+## Sparkline
+
+A tiny trend with no axes, for tables, tiles and lists.
+
+- **Function:** `spark`
+- **Group:** Over time
+- **Live demo:** [charts.productscope.uk/sparkline](https://charts.productscope.uk/sparkline) (toggle the options, empty and one-point states)
+- **Needs:** `toolkit/tokens.css`, `toolkit/helpers.js`, `toolkit/toolkit.css`, `toolkit/toolkit.js`. See [getting started](../getting-started.md).
+
+### When to use it
+
+Use it beside a number to show direction at a glance. It has no scale on purpose, so always print the figure next to it and never use it to compare exact values.
+
+### Options
+
+- `values`: Array of numbers. Fewer than 2 draws nothing (a dash for none).
+- `w, h`: Size in SVG units (default 120 × 32).
+- `bars`: true draws columns, with the latest one highlighted.
+- `fluid`: true makes the svg 100% wide (set w to the width you expect).
+- `label`: aria-label, e.g. a sentence describing the trend.
+
+### Example
+
+```js
+row.append(
+  spark(values, {
+    w: 120, h: 32,
+    label: 'Groceries over 12 months, from £402 to £455'
+  })
+);
+
+// columns instead of a line, wider
+spark(values, { w: 260, h: 40, bars: true, label: '...' });
+```
+
+Names such as `openMonth` or `openCategory` in the example (where present) are your own callbacks, not part of the toolkit.
+
+### Keyboard and screen readers
+
+Sparklines are labelled images with a plain-English summary for screen readers; the number beside them is the data.
+
+### Edge cases
+
+Empty, one-point and all-zero data are handled and drawn on purpose, not hidden. See [concepts](../concepts.md#edge-cases).
+
+
+## Gauge
+
+Progress against a budget or limit, with the state spelled out in words.
+
+- **Function:** `gauge`
+- **Group:** At a glance
+- **Live demo:** [charts.productscope.uk/gauge](https://charts.productscope.uk/gauge) (toggle the options, empty and one-point states)
+- **Needs:** `toolkit/tokens.css`, `toolkit/helpers.js`, `toolkit/toolkit.css`, `toolkit/toolkit.js`. See [getting started](../getting-started.md).
+
+### When to use it
+
+Use it for one value against one target: a budget, a quota, a limit. State is shown by colour and by the words on the right, so it never relies on colour alone.
+
+### Options
+
+- `label`: Name shown on the left (and in the tooltip).
+- `value`: What has been used so far.
+- `target`: The budget or limit. Used above 85% shows 'nearly'; above 100% shows 'over' and a marker at the target.
+
+### Example
+
+```js
+container.append(
+  gauge({ label: 'Groceries',  value: 520, target: 600 }),   // on track
+  gauge({ label: 'Transport',  value: 195, target: 200 }),   // nearly
+  gauge({ label: 'Eating out', value: 340, target: 250 })    // over: bar full, marker at the target
+);
+```
+
+Names such as `openMonth` or `openCategory` in the example (where present) are your own callbacks, not part of the toolkit.
+
+### Keyboard and screen readers
+
+Each row has a tooltip title with the exact amounts; the words beside the bar carry the status.
+
+### Edge cases
+
+Empty, one-point and all-zero data are handled and drawn on purpose, not hidden. See [concepts](../concepts.md#edge-cases).
+
+
+## Waterfall
+
+How a starting number becomes an ending number, step by step.
+
+- **Function:** `waterfall`
+- **Group:** Comparing
+- **Live demo:** [charts.productscope.uk/waterfall](https://charts.productscope.uk/waterfall) (toggle the options, empty and one-point states)
+- **Needs:** `toolkit/tokens.css`, `toolkit/helpers.js`, `toolkit/toolkit.css`, `toolkit/toolkit.js`. See [getting started](../getting-started.md).
+
+### When to use it
+
+Use it to explain a change: opening balance, what came in, what went out, closing balance. Totals stand on the baseline; changes float and connect with a dashed rule.
+
+### Options
+
+- `steps`: [{ label, value, total?, colour? }]. value > 0 adds, value < 0 subtracts; total: true restarts from zero at that value.
+- `height`: Chart height.
+- `label`: aria-label.
+
+### Example
+
+```js
+const chart = waterfall({
+  steps: [
+    { label: 'Start',     value: 4200, total: true },
+    { label: 'Salary',    value: 3100 },
+    { label: 'Housing',   value: -1210 },
+    { label: 'Groceries', value: -438 },
+    { label: 'End',       value: 5652, total: true }
+  ],
+  height: 300,
+  label: 'How the balance changed in September'
+});
+```
+
+Names such as `openMonth` or `openCategory` in the example (where present) are your own callbacks, not part of the toolkit.
+
+### Keyboard and screen readers
+
+Hover a bar for its amount. Labels alternate in height on narrow screens so they do not collide.
+
+### Edge cases
+
+Empty, one-point and all-zero data are handled and drawn on purpose, not hidden. See [concepts](../concepts.md#edge-cases).
+
+
+## Flow
+
+Where money comes from and where it goes, as proportional ribbons.
+
+- **Function:** `flow`
+- **Group:** Parts of a whole
+- **Live demo:** [charts.productscope.uk/flow](https://charts.productscope.uk/flow) (toggle the options, empty and one-point states)
+- **Needs:** `toolkit/tokens.css`, `toolkit/helpers.js`, `toolkit/toolkit.css`, `toolkit/toolkit.js`. See [getting started](../getting-started.md).
+
+### When to use it
+
+Use it to show the shape of a budget: income sources on the left, spending categories on the right. Each source is split across the uses in proportion, so it shows mix, not exact routing.
+
+### Options
+
+- `left`: [{ label, value }] sources (drawn green).
+- `right`: [{ label, value, colour }] uses; the colour tints the ribbons.
+- `height`: Chart height. Width and label space follow the container.
+- `label`: aria-label. If either side is empty the chart shows a short sentence instead.
+
+### Example
+
+```js
+const chart = flow({
+  left: [
+    { label: 'Salary',    value: 3100 },
+    { label: 'Side gigs', value: 450 }
+  ],
+  right: [
+    { label: 'Housing',   value: 1210, colour: catColor('Housing') },
+    { label: 'Groceries', value: 438,  colour: catColor('Groceries') },
+    { label: 'Saved',     value: 1900, colour: 'var(--c9)' }
+  ],
+  height: 340,
+  label: 'Where September money went'
+});
+```
+
+Other toolkit functions used above: `catColor`. Names such as `openMonth` or `openCategory` in the example are your own callbacks, not part of the toolkit.
+
+### Keyboard and screen readers
+
+The chart is a labelled picture; the table view lists every source and use with amounts.
+
+### Edge cases
+
+Empty, one-point and all-zero data are handled and drawn on purpose, not hidden. See [concepts](../concepts.md#edge-cases).
+
+
+## Ranked bars
+
+A top-N list with a bar per row, a detail line and optional click-through.
+
+- **Function:** `hbars`
+- **Group:** Comparing
+- **Live demo:** [charts.productscope.uk/hbars](https://charts.productscope.uk/hbars) (toggle the options, empty and one-point states)
+- **Needs:** `toolkit/tokens.css`, `toolkit/helpers.js`, `toolkit/toolkit.css`, `toolkit/toolkit.js`. See [getting started](../getting-started.md).
+
+### When to use it
+
+Use it for rankings with long labels (merchants, products, people) where columns would force tiny rotated text. It is plain HTML, so it wraps, selects and reads naturally.
+
+### Options
+
+- `items`: [{ label, value, sub?, tag?, colour?, onClick? }]. Sorted by you; bars scale to the largest.
+- `fmt`: Value formatter (default money0).
+- `empty`: Text for the empty state.
+
+### Example
+
+```js
+container.append(
+  hbars([
+    { label: 'Greenleaf Market', value: 612, sub: '14 payments, average £44',
+      colour: catColor('Groceries'), onClick: () => openMerchant('Greenleaf Market') },
+    { label: 'Northline Rail',   value: 388, sub: '9 payments', tag: '▲ 12%',
+      colour: catColor('Transport') }
+  ], { fmt: v => '£' + Math.round(v), empty: 'No merchants yet' })
+);
+```
+
+Other toolkit functions used above: `catColor`. Names such as `openMonth` or `openCategory` in the example are your own callbacks, not part of the toolkit.
+
+### Keyboard and screen readers
+
+When rows are clickable they are keyboard-focusable: Tab to a row and press Enter.
+
+### Edge cases
+
+Empty, one-point and all-zero data are handled and drawn on purpose, not hidden. See [concepts](../concepts.md#edge-cases).
+
+
+## Small multiples
+
+One mini chart per category on a shared layout, with a detail chart for the one you pick.
+
+- **Function:** markup + `spark`
+- **Group:** Over time
+- **Live demo:** [charts.productscope.uk/small-multiples](https://charts.productscope.uk/small-multiples) (toggle the options, empty and one-point states)
+- **Needs:** `toolkit/tokens.css`, `toolkit/helpers.js`, `toolkit/toolkit.css`, `toolkit/toolkit.js`. See [getting started](../getting-started.md).
+
+### When to use it
+
+Use it instead of one crowded multi-line chart, or whenever series have different scales. Each card keeps its own scale, so compare shapes, then click one to read the exact figures.
+
+### Options
+
+- `grid`: A CSS grid of .sm cards (auto-fill, minimum 180px) so it reflows from 1 column to many.
+- `card`: Name, latest value, and spark(values, { w: 150, h: 36 }) in a `<button class='c'>` with aria-pressed.
+- `detail`: A lineChart for the selected card, redrawn on click.
+
+### Example
+
+```js
+const grid = h('div', { class: 'sm' }, categories.map(c =>
+  h('button', { class: 'c', type: 'button', 'aria-pressed': String(c === selected),
+      on: { click: () => select(c) } },
+    h('span', { class: 'n' }, c),
+    h('span', { class: 'v' }, money0(latest[c])),
+    spark(series[c], { w: 150, h: 36, label: c + ' trend' }))));
+
+detail.replaceChildren(lineChart({ xs: months, xlabel: monthName,
+  series: [{ name: selected, values: series[selected], colour: catColor(selected), area: true }],
+  height: 200 }));
+```
+
+Names such as `openMonth` or `openCategory` in the example (where present) are your own callbacks, not part of the toolkit.
+
+### Keyboard and screen readers
+
+Cards are buttons: Tab to one and press Enter or Space to show it in the detail chart below.
+
+### Edge cases
+
+Empty, one-point and all-zero data are handled and drawn on purpose, not hidden. See [concepts](../concepts.md#edge-cases).
+
+
+## KPI tiles
+
+Headline numbers with a change and a sparkline, plus a loading skeleton.
+
+- **Function:** markup + `spark`
+- **Group:** At a glance
+- **Live demo:** [charts.productscope.uk/kpi-tiles](https://charts.productscope.uk/kpi-tiles) (toggle the options, empty and one-point states)
+- **Needs:** `toolkit/tokens.css`, `toolkit/helpers.js`, `toolkit/toolkit.css`, `toolkit/toolkit.js`. See [getting started](../getting-started.md).
+
+### When to use it
+
+Use them for the three to eight numbers someone should see first. Always pair the value with a change (arrow, size and period in words) and use the skeleton while data loads.
+
+### Options
+
+- `.kgrid`: A 4-column grid (2 on a phone) with 1px dividers. Children are .kt tiles.
+- `.kt`: Tile: .s label, .v value, .d change, optional spark(). Use `<a class='kt'>` for links.
+- `.d`: The change line. Colour by meaning with .good (green) or .bad (red). .up is red and .down is green, for measures where rising is bad such as cost. .flat is neutral grey: use it for a measure that is neither good nor bad, such as volume.
+- `.skel`: Shimmer placeholder while loading; respects prefers-reduced-motion.
+
+### Example
+
+```js
+const tile = (label, value, delta, goodWhen, values) =>
+  h('div', { class: 'kt' },
+    h('span', { class: 's' }, label),
+    h('span', { class: 'v' }, value),
+    h('span', { class: 'd ' + (delta === 0 ? 'flat' : (delta > 0) === (goodWhen === 'up') ? 'good' : 'bad') },
+      (delta > 0 ? '▲ ' : '▼ ') + Math.abs(delta) + '% vs last month'),
+    spark(values, { w: 160, h: 30, label: label + ' trend' }));
+
+grid.append(tile('Spent this month', '£2,310', 6, 'down', last6));
+
+// loading state
+h('div', { class: 'kt' }, h('div', { class: 'skel', style: 'height:1.4rem;width:60%' }));
+```
+
+Names such as `openMonth` or `openCategory` in the example (where present) are your own callbacks, not part of the toolkit.
+
+### Keyboard and screen readers
+
+Tiles can be plain or links. Direction is shown with ▲/▼ and words; colour only says whether the change is good or bad.
+
+### Edge cases
+
+Empty, one-point and all-zero data are handled and drawn on purpose, not hidden. See [concepts](../concepts.md#edge-cases).
+
+
+## Data table
+
+The accessible twin of every chart: plain numbers in a real table.
+
+- **Function:** `dataTable`
+- **Group:** At a glance
+- **Live demo:** [charts.productscope.uk/data-table](https://charts.productscope.uk/data-table) (toggle the options, empty and one-point states)
+- **Needs:** `toolkit/tokens.css`, `toolkit/helpers.js`, `toolkit/toolkit.css`, `toolkit/toolkit.js`. See [getting started](../getting-started.md).
+
+### When to use it
+
+Use it beside any chart as the 'Show as table' view, or on its own when people need exact figures. First column is left-aligned labels; the rest are right-aligned numbers; wide tables scroll sideways.
+
+### Options
+
+- `head`: Array of header strings. The first column is the row label.
+- `rows`: Array of arrays of cells (strings or numbers; null becomes empty).
+- `caption`: Optional third argument: a visible caption that names the table.
+
+### Example
+
+```js
+container.append(
+  dataTable(
+    ['Month', 'Groceries', 'Housing', 'Total'],
+    [
+      ['Jul 26', '£431', '£1,210', '£2,214'],
+      ['Aug 26', '£402', '£1,210', '£2,180']
+    ],
+    'Spending by month'
+  )
+);
+```
+
+Names such as `openMonth` or `openCategory` in the example (where present) are your own callbacks, not part of the toolkit.
+
+### Keyboard and screen readers
+
+A real `<table>` with a caption and column headers (scope='col'), so screen readers announce each cell with its row and column.
+
+### Edge cases
+
+Empty, one-point and all-zero data are handled and drawn on purpose, not hidden. See [concepts](../concepts.md#edge-cases).
+
+
+## Histogram
+
+How a measure is spread: thread length, thread time or cost per response, in bars.
+
+- **Function:** `histogram`
+- **Group:** Spread and relationships
+- **Live demo:** [charts.productscope.uk/histogram](https://charts.productscope.uk/histogram) (toggle the options, empty and one-point states)
+- **Needs:** `toolkit/tokens.css`, `toolkit/helpers.js`, `toolkit/toolkit.css`, `toolkit/toolkit.js`. See [getting started](../getting-started.md).
+
+### When to use it
+
+Use it when an average hides what is happening. A median conversation may be four questions while a few run to sixty, and a histogram shows both. Pool the long tail into a last bar so the common cases stay readable, and mark the median and the 90th percentile.
+
+### Options
+
+- `values`: Array of raw numbers. The chart bins them for you; use histBins(o) to get the same bins for a table.
+- `min, max`: Axis floor, and a ceiling: values at or above max pool into a final 'or more' bar.
+- `binWidth, bins`: A fixed bin width, or roughly how many bins you want (default about the square root of the count).
+- `integer`: True for whole-number data such as a count of questions: one bar per value, labels centred.
+- `share`: True to show each bar as a percentage of all values instead of a count.
+- `markers`: [{ value, label }]: dashed reference lines such as the median and the 90th percentile.
+- `xfmt, yfmt, xtitle, unit`: Formatters, the x-axis title and the noun used in the tooltip.
+- `label / empty`: aria-label for screen readers; text shown when there is no data.
+
+### Example
+
+```js
+const chart = histogram({
+  values: costPerResponse,                  // one number per response
+  min: 0,
+  max: quantile(costPerResponse, 0.97),     // pool the long tail into an 'or more' bar
+  xfmt: v => '£' + (Math.round(v * 1000) / 1000),
+  xtitle: 'Cost of one answer',
+  unit: 'Responses',
+  markers: [
+    { value: median(costPerResponse), label: 'Median £0.009' },
+    { value: quantile(costPerResponse, 0.9), label: '90% are under £0.021' }
+  ],
+  label: 'Cost per response',
+  empty: 'No responses in this range'
+});
+document.querySelector('#host').append(chart);
+```
+
+Other toolkit functions used above: `quantile`, `median`. Names such as `openMonth` or `openCategory` in the example are your own callbacks, not part of the toolkit.
+
+### Keyboard and screen readers
+
+Focus the chart with Tab, then use ← → Home End to move between columns; Esc closes the tooltip. On a phone, touch a column.
+
+### Edge cases
+
+Empty, one-point and all-zero data are handled and drawn on purpose, not hidden. See [concepts](../concepts.md#edge-cases).
+
+
+## Box plot
+
+Compare the spread of a measure across groups: median, quartiles, whiskers and outliers.
+
+- **Function:** `boxPlot`
+- **Group:** Spread and relationships
+- **Live demo:** [charts.productscope.uk/box-plot](https://charts.productscope.uk/box-plot) (toggle the options, empty and one-point states)
+- **Needs:** `toolkit/tokens.css`, `toolkit/helpers.js`, `toolkit/toolkit.css`, `toolkit/toolkit.js`. See [getting started](../getting-started.md).
+
+### When to use it
+
+Use it to compare distributions side by side, such as the cost of a conversation by theme or the time a conversation takes by week. The box holds the middle half, the line is the median and the dots are the unusual ones. Cap the axis when one outlier would flatten the rest.
+
+### Options
+
+- `groups`: [{ label, values: [numbers], colour? }]. The chart works out the quartiles and whiskers; a group with no values says 'no data'.
+- `cap`: Clip the axis here. Groups with outliers above it get a ▲ and the real maximum.
+- `mean`: True to add a diamond at the mean, which a long tail pulls above the median.
+- `colour`: One colour for every box (a group's own colour wins).
+- `yfmt, unit, height`: Axis and tooltip formatter, the noun for the count, and the chart height.
+- `label / empty`: aria-label for screen readers; text shown when no group has data.
+
+### Example
+
+```js
+const chart = boxPlot({
+  groups: themes.map(t => ({
+    label: t.name,
+    colour: catColor(t.name),
+    values: threads.filter(x => x.theme === t.id).map(x => x.cost)
+  })),
+  cap: 0.35,                       // outliers above this get a ▲ and their real value
+  mean: true,
+  yfmt: v => '£' + (Math.round(v * 100) / 100),
+  unit: 'Threads',
+  label: 'Cost per thread by theme'
+});
+document.querySelector('#host').append(chart);
+```
+
+Other toolkit functions used above: `catColor`. Names such as `openMonth` or `openCategory` in the example are your own callbacks, not part of the toolkit.
+
+### Keyboard and screen readers
+
+Focus the chart with Tab, then use ← → Home End to move between columns; Esc closes the tooltip. On a phone, touch a column.
+
+### Edge cases
+
+Empty, one-point and all-zero data are handled and drawn on purpose, not hidden. See [concepts](../concepts.md#edge-cases).
+
+
+## Word cloud
+
+The words people use most, sized by how often they appear, with optional colour for rising and falling.
+
+- **Function:** `wordCloud`
+- **Group:** At a glance
+- **Live demo:** [charts.productscope.uk/word-cloud](https://charts.productscope.uk/word-cloud) (toggle the options, empty and one-point states)
+- **Needs:** `toolkit/tokens.css`, `toolkit/helpers.js`, `toolkit/toolkit.css`, `toolkit/toolkit.js`. See [getting started](../getting-started.md).
+
+### When to use it
+
+Use it for a quick feel of what people are asking about, such as the words in the last 30 days of conversations. It is good for orientation and weak for exact comparison, so back it with the table view or a ranked list. Words are placed on a spiral, largest first, so they never overlap.
+
+### Options
+
+- `words`: [{ text, value, delta?, colour? }]. Size follows the square root of value; delta is the percentage change, shown in the tooltip.
+- `max`: How many words to draw (default 40, largest first). Words that cannot fit are left out.
+- `colour`: Default word colour. Give a word its own colour to show rising or falling, as in the demo.
+- `minSize, maxSize`: Smallest and largest font size in pixels.
+- `fmt, unit`: Value formatter and the noun used in the tooltip and screen-reader label.
+- `onClick`: (word) => void. Makes each word a click target.
+- `label / empty`: aria-label for screen readers; text shown when there are no words.
+
+### Example
+
+```js
+const chart = wordCloud({
+  words: [
+    { text: 'renew',       value: 186, delta: 14 },
+    { text: 'certificate', value: 128, delta: 31, colour: 'var(--c2)' },
+    { text: 'refund',      value: 104, delta: -18, colour: 'var(--c1)' }
+  ],
+  max: 40,
+  unit: 'Mentions',
+  onClick: w => filterConversations(w.text),
+  label: 'Most common words, last 30 days'
+});
+document.querySelector('#host').append(chart);
+```
+
+Names such as `openMonth` or `openCategory` in the example (where present) are your own callbacks, not part of the toolkit.
+
+### Keyboard and screen readers
+
+Tab into the chart once, then use the arrow keys (or Home and End) to move from item to item; Esc closes the tooltip. On a phone, touch an item.
+
+### Edge cases
+
+Empty, one-point and all-zero data are handled and drawn on purpose, not hidden. See [concepts](../concepts.md#edge-cases).
+
+
+## Diverging bars
+
+What went up and what went down: bars either side of a zero line, biggest rise at the top.
+
+- **Function:** `divergingBars`
+- **Group:** Comparing
+- **Live demo:** [charts.productscope.uk/diverging-bars](https://charts.productscope.uk/diverging-bars) (toggle the options, empty and one-point states)
+- **Needs:** `toolkit/tokens.css`, `toolkit/helpers.js`, `toolkit/toolkit.css`, `toolkit/toolkit.js`. See [getting started](../getting-started.md).
+
+### When to use it
+
+Use it for change between two periods, such as the themes trending up and down this week compared with last. Rises go right and falls go left from a shared zero line, and the arrow in the label means the direction never depends on colour alone. It is plain HTML, so labels wrap and select.
+
+### Options
+
+- `items`: [{ label, value, sub?, tag?, onClick? }]. Positive values go right, negative left; bars scale to the largest change.
+- `fmt`: Value formatter (default signed, one decimal).
+- `leftLabel, rightLabel`: Headings over the two sides (default Down and Up).
+- `upColour, downColour`: Bar colours (default orange for up, blue for down: separable for colour-blind readers).
+- `sort`: False keeps your order; the default sorts from the biggest rise to the biggest fall.
+- `empty`: Text for the empty state.
+
+### Example
+
+```js
+container.append(
+  divergingBars([
+    { label: 'Certificates', value: 9, sub: 'from 6 to 15 conversations' },
+    { label: 'Renewals',     value: 4, sub: 'from 21 to 25' },
+    { label: 'Complaints',   value: -7, sub: 'from 11 to 4' }
+  ], {
+    leftLabel: 'Fewer than last week',
+    rightLabel: 'More than last week',
+    fmt: v => (v > 0 ? '+' : '−') + Math.abs(v),
+    empty: 'Nothing changed this week'
+  })
+);
+```
+
+Names such as `openMonth` or `openCategory` in the example (where present) are your own callbacks, not part of the toolkit.
+
+### Keyboard and screen readers
+
+When rows are clickable they are keyboard-focusable: Tab to a row and press Enter.
+
+### Edge cases
+
+Empty, one-point and all-zero data are handled and drawn on purpose, not hidden. See [concepts](../concepts.md#edge-cases).
+
+
+## Stacked area
+
+Volume over time, split into themes, or the same data as a share of the total.
+
+- **Function:** `areaChart`
+- **Group:** Over time
+- **Live demo:** [charts.productscope.uk/area](https://charts.productscope.uk/area) (toggle the options, empty and one-point states)
+- **Needs:** `toolkit/tokens.css`, `toolkit/helpers.js`, `toolkit/toolkit.css`, `toolkit/toolkit.js`. See [getting started](../getting-started.md).
+
+### When to use it
+
+Use it when the total and its make-up both matter, such as conversations per week by theme. Stacked shows how much; switch to share of total to see which themes are gaining ground whatever the volume. Name the larger bands at the right edge as well as in the legend, so people do not have to hunt for them.
+
+### Options
+
+- `xs`: Array of x values (strings). Any length, including 0 or 1.
+- `series`: [{ name, values, colour }], stacked in order from the bottom.
+- `mode`: 'stacked' (default) or 'percent' for each x as a share of 100%.
+- `direct`: True to name each band at the right edge. Bands too thin to hold a label are skipped, so keep a legend as well.
+- `xlabel`: (x, i, isTooltip) => string. Short label for the axis, long label for the tooltip.
+- `yfmt, tipfmt, height, maxLabels`: Number formatters and sizes. Pass your own yfmt: the default is in pounds.
+- `label / empty`: aria-label for screen readers; text shown when there is no data.
+
+### Example
+
+```js
+const chart = areaChart({
+  xs: weeks,                                   // ['2026-08-03', '2026-08-10', ...]
+  xlabel: (w, i, isTooltip) => (isTooltip ? 'Week of ' : '') + fmtDate(w),
+  mode: 'stacked',                             // or 'percent'
+  direct: true,                                // name the bands at the right edge
+  series: [
+    { name: 'Renewals',    colour: catColor('Renewals'),    values: renewalsPerWeek },
+    { name: 'Payments',    colour: catColor('Payments'),    values: paymentsPerWeek },
+    { name: 'Other themes', colour: 'var(--c9)',            values: otherPerWeek }
+  ],
+  yfmt: v => String(v),
+  label: 'Conversations per week by theme',
+  empty: 'No conversations in this range'
+});
+document.querySelector('#host').append(chart);
+```
+
+Other toolkit functions used above: `catColor`. Names such as `openMonth` or `openCategory` in the example are your own callbacks, not part of the toolkit.
+
+### Keyboard and screen readers
+
+Focus the chart with Tab, then use ← → Home End to move between columns; Esc closes the tooltip. On a phone, touch a column.
+
+### Edge cases
+
+Empty, one-point and all-zero data are handled and drawn on purpose, not hidden. See [concepts](../concepts.md#edge-cases).
+
+
+## Scatter and bubble
+
+Two measures against each other, one dot per item, with size, groups and a trend line.
+
+- **Function:** `scatter`
+- **Group:** Spread and relationships
+- **Live demo:** [charts.productscope.uk/scatter](https://charts.productscope.uk/scatter) (toggle the options, empty and one-point states)
+- **Needs:** `toolkit/tokens.css`, `toolkit/helpers.js`, `toolkit/toolkit.css`, `toolkit/toolkit.js`. See [getting started](../getting-started.md).
+
+### When to use it
+
+Use it to see whether two things move together, such as thread length against cost, and to spot the threads that do not follow the pattern. Add a third measure as bubble size, split the dots into groups, and fit a trend line when the cloud is dense.
+
+### Options
+
+- `points`: [{ x, y, r?, label?, group? }]. r makes it a bubble chart; label is the tooltip title.
+- `groups`: { groupName: colour }. With patterns on, each group also gets its own marker shape.
+- `trend`: True to draw a least-squares line (the correlation is on the SVG as data-r).
+- `xMax, yMax`: Clip the axes; points beyond are drawn on the edge.
+- `xfmt, yfmt, rfmt, xtitle, ytitle, rtitle`: Formatters and axis titles.
+- `maxR, height, colour`: Largest bubble radius, chart height and the default dot colour.
+- `label / empty`: aria-label for screen readers; text shown when there is no data.
+
+### Example
+
+```js
+const chart = scatter({
+  points: threads.map(t => ({
+    x: t.questions, y: t.cost, r: t.minutes,
+    label: 'Thread ' + t.id, group: t.themeGroup
+  })),
+  groups: { Renewals: 'var(--c1)', Payments: 'var(--c2)', 'Other themes': 'var(--c9)' },
+  trend: true,
+  xMax: 30, yMax: 0.4,
+  xtitle: 'Questions in the thread',
+  ytitle: 'Cost',
+  yfmt: v => '£' + (Math.round(v * 100) / 100),
+  rtitle: 'Minutes',
+  label: 'Thread length against cost'
+});
+document.querySelector('#host').append(chart);
+```
+
+Names such as `openMonth` or `openCategory` in the example (where present) are your own callbacks, not part of the toolkit.
+
+### Keyboard and screen readers
+
+Tab into the chart, then use the arrow keys to step through the points from left to right (Home and End jump to the ends); Esc closes the tooltip. Hover or touch a dot to read it.
+
+### Edge cases
+
+Empty, one-point and all-zero data are handled and drawn on purpose, not hidden. See [concepts](../concepts.md#edge-cases).
+
+
+## Bump chart
+
+Rank over time: who is first this week, and how each one got there.
+
+- **Function:** `bump`
+- **Group:** Comparing
+- **Live demo:** [charts.productscope.uk/bump](https://charts.productscope.uk/bump) (toggle the options, empty and one-point states)
+- **Needs:** `toolkit/tokens.css`, `toolkit/helpers.js`, `toolkit/toolkit.css`, `toolkit/toolkit.js`. See [getting started](../getting-started.md).
+
+### When to use it
+
+Use it when order matters more than size, such as which themes lead the conversation each week. Lines cross where the order changes, so the story of who is climbing and who is falling reads at once. Hover or focus a line to isolate it.
+
+### Options
+
+- `xs`: Array of x values (strings), usually periods.
+- `series`: [{ name, ranks, values?, colour }]. ranks[i] is 1 for the top; null means not ranked that period. Use rankSeries() to build ranks from values.
+- `xlabel`: (x, i, isTooltip) => string.
+- `tipfmt`: Formatter for the values shown beside each rank in the tooltip.
+- `rowH`: Height of one rank row in pixels (default 28).
+- `label / empty`: aria-label for screen readers; text shown when there is no data.
+
+### Example
+
+```js
+const ranked = rankSeries([
+  { name: 'Renewals',   colour: catColor('Renewals'),   values: renewalsPerWeek },
+  { name: 'Payments',   colour: catColor('Payments'),   values: paymentsPerWeek },
+  { name: 'Certificates', colour: catColor('Certificates'), values: certificatesPerWeek }
+]);
+const chart = bump({
+  xs: weeks,
+  xlabel: (w, i, isTooltip) => fmtDate(w),
+  series: ranked,                    // each has ranks: [3, 2, 2, 1, ...]
+  tipfmt: v => v + ' conversations',
+  label: 'Rank of themes by weekly conversations'
+});
+document.querySelector('#host').append(chart);
+```
+
+Other toolkit functions used above: `rankSeries`, `catColor`. Names such as `openMonth` or `openCategory` in the example are your own callbacks, not part of the toolkit.
+
+### Keyboard and screen readers
+
+Tab into the chart once, then use the arrow keys (or Home and End) to move from item to item; Esc closes the tooltip. On a phone, touch an item.
+
+### Edge cases
+
+Empty, one-point and all-zero data are handled and drawn on purpose, not hidden. See [concepts](../concepts.md#edge-cases).
+
+
+## Slope chart
+
+Two moments side by side, one line per item, so rises and falls read at a glance.
+
+- **Function:** `slope`
+- **Group:** Comparing
+- **Live demo:** [charts.productscope.uk/slope](https://charts.productscope.uk/slope) (toggle the options, empty and one-point states)
+- **Needs:** `toolkit/tokens.css`, `toolkit/helpers.js`, `toolkit/toolkit.css`, `toolkit/toolkit.js`. See [getting started](../getting-started.md).
+
+### When to use it
+
+Use it to compare the same items at two points: this week against last, or the first month against the latest. The slope of each line is the change, steep for big movers and flat for steady ones, and labels at both ends carry the numbers. Use it for a handful of items rather than dozens.
+
+### Options
+
+- `items`: [{ label, from, to, colour? }]. Colour follows direction unless you set one.
+- `fromLabel, toLabel`: Headings over the two axes.
+- `fmt`: Value formatter for the labels and tooltip.
+- `upColour, downColour`: Line colours for a rise and a fall (default orange and blue).
+- `height`: Chart height; by default it grows with the number of items.
+- `label / empty`: aria-label for screen readers; text shown when there is nothing to compare.
+
+### Example
+
+```js
+const chart = slope({
+  items: [
+    { label: 'Certificates', from: 6,  to: 15 },
+    { label: 'Renewals',     from: 21, to: 25 },
+    { label: 'Complaints',   from: 11, to: 4 }
+  ],
+  fromLabel: 'Week before',
+  toLabel: 'Last week',
+  fmt: v => Math.round(v),
+  label: 'Conversations by theme, week on week'
+});
+document.querySelector('#host').append(chart);
+```
+
+Names such as `openMonth` or `openCategory` in the example (where present) are your own callbacks, not part of the toolkit.
+
+### Keyboard and screen readers
+
+Tab into the chart once, then use the arrow keys (or Home and End) to move from item to item; Esc closes the tooltip. On a phone, touch an item.
+
+### Edge cases
+
+Empty, one-point and all-zero data are handled and drawn on purpose, not hidden. See [concepts](../concepts.md#edge-cases).
+
+
+## Funnel
+
+A journey where each step can only lose people, with the drop-off between steps.
+
+- **Function:** `funnel`
+- **Group:** Parts of a whole
+- **Live demo:** [charts.productscope.uk/funnel](https://charts.productscope.uk/funnel) (toggle the options, empty and one-point states)
+- **Needs:** `toolkit/tokens.css`, `toolkit/helpers.js`, `toolkit/toolkit.css`, `toolkit/toolkit.js`. See [getting started](../getting-started.md).
+
+### When to use it
+
+Use it for a sequence people drop out of: conversations started, answered, rated and rated helpful. Bar widths are a share of the first step, and the text between the steps says how many carried on, which is the number that tells you where to look.
+
+### Options
+
+- `steps`: [{ label, value }] in order. Widths are value / first value.
+- `between`: False hides the 'carried on' text between steps.
+- `fmt`: Value formatter (default thousands separators).
+- `colour, rowH`: Bar colour (later steps fade a little) and row height.
+- `label / empty`: aria-label for screen readers; text shown when the first step is empty.
+
+### Example
+
+```js
+const chart = funnel({
+  steps: [
+    { label: 'Conversations started',  value: 1900 },
+    { label: 'Assistant gave an answer', value: 1786 },
+    { label: 'Member rated the answer', value: 768 },
+    { label: 'Rated helpful',           value: 622 }
+  ],
+  between: true,
+  label: 'From first question to a helpful answer'
+});
+document.querySelector('#host').append(chart);
+```
+
+Names such as `openMonth` or `openCategory` in the example (where present) are your own callbacks, not part of the toolkit.
+
+### Keyboard and screen readers
+
+Tab into the chart once, then use the arrow keys (or Home and End) to move from item to item; Esc closes the tooltip. On a phone, touch an item.
+
+### Edge cases
+
+Empty, one-point and all-zero data are handled and drawn on purpose, not hidden. See [concepts](../concepts.md#edge-cases).

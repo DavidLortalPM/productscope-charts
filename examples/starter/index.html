@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- A tight policy on purpose: scripts and styles only from this origin, no network requests, no images.
+       The charts set style attributes, so those are allowed with style-src-attr; <style> elements stay blocked. -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; script-src 'self'; style-src 'self'; style-src-attr 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'; connect-src 'none'">
+  <title>Product Scope Charts: starter</title>
+  <link rel="stylesheet" href="../../toolkit/tokens.css">
+  <link rel="stylesheet" href="../../toolkit/toolkit.css">
+  <link rel="stylesheet" href="starter.css">
+</head>
+<body>
+  <main>
+    <h1>Starter</h1>
+    <p>Three charts from the toolkit, drawn from made-up numbers. Everything on this page is served from this folder and the <code>toolkit</code> folder: there are no libraries and no network requests.</p>
+
+    <div class="controls" role="group" aria-label="Chart options">
+      <button type="button" class="mini" id="patterns" aria-pressed="false">Patterns</button>
+      <button type="button" class="mini" id="table" aria-pressed="false">Show as table</button>
+    </div>
+
+    <section class="widget" aria-labelledby="h-line">
+      <h2 id="h-line">Monthly spend</h2>
+      <div id="line"></div>
+    </section>
+
+    <section class="widget" aria-labelledby="h-bars">
+      <h2 id="h-bars">Money in and out</h2>
+      <div id="bars"></div>
+    </section>
+
+    <section class="widget" aria-labelledby="h-donut">
+      <h2 id="h-donut">Where it went in July</h2>
+      <div id="donut"></div>
+    </section>
+  </main>
+
+  <!-- Classic scripts that define globals: the helpers first, then the toolkit, then this page's own code. -->
+  <script src="../../toolkit/helpers.js"></script>
+  <script src="../../toolkit/toolkit.js"></script>
+  <script src="starter.js"></script>
+</body>
+</html>

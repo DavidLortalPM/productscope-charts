@@ -1,0 +1,33 @@
+name: Bug report
+description: A chart draws wrongly, throws an error, or the docs are wrong.
+labels: [bug]
+body:
+  - type: input
+    id: chart
+    attributes:
+      label: Which chart?
+      placeholder: e.g. Line, or "all of them"
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: How can we reproduce it?
+      description: The options you passed and a few rows of data are ideal. Please use made-up data.
+      render: js
+  - type: input
+    id: env
+    attributes:
+      label: Browser and version
+      placeholder: e.g. Firefox 140 on macOS
+  - type: input
+    id: version
+    attributes:
+      label: Toolkit version
+      description: See CHANGELOG.md for the version your copy came from.

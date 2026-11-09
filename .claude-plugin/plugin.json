@@ -1,0 +1,13 @@
+{
+  "name": "productscope-charts",
+  "description": "A Claude skill for building charts and dashboards as plain SVG with the Product Scope Charts toolkit: no library, strict-CSP friendly, accessible by default.",
+  "version": "1.1.0",
+  "author": {
+    "name": "David Lortal",
+    "url": "https://productscope.uk"
+  },
+  "homepage": "https://charts.productscope.uk",
+  "repository": "https://github.com/DavidLortalPM/productscope-charts",
+  "license": "MIT",
+  "keywords": ["charts", "svg", "dashboards", "data-visualization", "accessibility"]
+}

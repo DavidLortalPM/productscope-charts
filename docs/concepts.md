@@ -1,0 +1,177 @@
+# Concepts and conventions
+
+These apply to every chart. Each chart's own page covers its options.
+
+## How the toolkit works
+
+- Every chart is a function that takes an options object and **returns a DOM node** (an `<svg>`, or for a few charts a `<div>`). You append it where you want it: `host.replaceChildren(chart)`.
+- The script defines **globals** (`lineChart`, `barChart`, `setChartWidth` and so on). It is not an ES module and there is no build step.
+- Data goes in as plain arrays of numbers and strings. A `null` value means "no data" and leaves a gap rather than drawing a zero.
+- Colours, font and corner radius come from CSS variables, so the charts follow your theme.
+
+## Sizing
+
+Charts are drawn in SVG units that are about one CSS pixel. Call `setChartWidth(px)` with the width of the container **before** drawing, and draw again when the container resizes (a `ResizeObserver` is the simplest way). The value is clamped between 320 and 1000. Drawing at the real width keeps text a readable size on a phone instead of scaling it down with the SVG.
+
+Label counts follow the width: narrow charts show fewer x labels.
+
+## Theming
+
+The charts read the tokens in `tokens.css`: `--bg`, `--surface`, `--sunk`, `--ink`, `--ink-2`, `--muted`, `--line`, `--line-2`, `--accent`, `--accent-ink`, `--ok`, `--guess`, `--decide`, `--c1` to `--c9`, `--f-ui` and `--r`.
+
+- Light values live on `:root`. Dark values apply under `prefers-color-scheme: dark`, and also when you set `data-theme="dark"` on `<html>` (set `data-theme="light"` to force light).
+- `--ok`, `--guess` and `--decide` are the good, warning and bad status colours used by gauges and deltas.
+- Rename nothing. Change values freely, but re-check contrast and colour-blind separation if you change `--c1` to `--c9` (see below).
+
+## Colours
+
+- There are **eight categorical colours**, `--c1` to `--c8`, in a fixed order, plus `--c9`, a grey that stands for "Other".
+- They are checked for colour-blind separation and for lightness and chroma against both themes. On the light theme three of the eight (slots 3, 4 and 5) are below 3:1 contrast against white. That is covered by legends, direct labels, tooltips and the table view on every chart, so never rely on colour alone to carry meaning.
+- Call `setCategoryOrder(names)` once with your category names, most important first. The first eight get `--c1` to `--c8`, in that order, and the rest fold into grey. `catColor(name)` then returns the same colour for a category in every chart, so "Housing" is the same colour in the stacked bars, the donut and the treemap.
+- Keep to eight categories or fewer and let a grey "Other" absorb the rest.
+
+## Accessibility
+
+- **Keyboard.** Charts can be reached with Tab. Column-like charts then use the left and right arrow keys, Home and End to move between columns, and Escape closes the tooltip. Clickable charts activate with Enter.
+- **Screen readers.** Each chart carries an `aria-label` (set it with the `label` option to say what the chart shows), and individual marks announce their name and value.
+- **Tooltips** are one shared element with `role="status"`. They show on hover, on keyboard focus and on touch, and hide on Escape, on scroll and when focus leaves.
+- **Patterns instead of colour.** Call `setPatterns(true)` before drawing and the charts that fill areas overlay a different texture on each colour. This covers line (with area fill), area, bars (grouped and stacked), donut, treemap, histogram, box plot and funnel.
+- **A table as well as a chart.** `dataTable(head, rows, caption)` builds an accessible `<table>`. Offer a "Show as table" switch next to every chart and build the table from the same data. The demo site does exactly this.
+- **Motion.** The only animation is the loading skeleton, which stops under `prefers-reduced-motion`.
+
+## Edge cases
+
+Every chart copes with the awkward cases and shows them, rather than drawing nothing or throwing:
+
+- **Empty data** shows a short sentence instead of an empty plot. Many charts let you set the wording with an `empty` option (check the chart's options).
+- **One data point** is drawn as a single, centred mark with its tooltip.
+- **All zeros** is drawn as zeros, not as a divide-by-zero.
+- **Outliers.** Charts with a `cap` option clip the axis at that value so one huge value does not flatten the rest. The clipped value is drawn at the top with a ▲ and its real value, so the chart never hides it.
+- **Gaps.** A `null` in a series leaves a gap.
+
+## Content-Security-Policy
+
+The toolkit is written to run under a strict policy:
+
+- **Scripts:** no `eval`, no `new Function`, no inline event-handler attributes, no external scripts. Allow your own origin or use a nonce: `script-src 'self'` or `script-src 'nonce-...'`.
+- **Network:** the charts make no requests of any kind (`connect-src 'none'` is fine), load no fonts and load no images. Fonts come from `--f-ui`, so use whatever you already serve.
+- **Styles:** the charts, the legend, `dataTable`, `hbars`, `gauge` and `spark` set `style` attributes on some elements (swatch colours, bar widths, table scrolling), which a policy has to allow. The site uses `style-src 'unsafe-inline'`. A tighter alternative is `style-src 'self'; style-src-attr 'unsafe-inline'`, which keeps `<style>` elements locked down and allows only attributes. `examples/starter/` in the repository uses that second form and runs without a single violation.
+- **A `<meta http-equiv="Content-Security-Policy">` tag works** for all of the above, if you cannot set a header. (`frame-ancestors` is ignored in a meta tag; it needs a header.) Add `img-src data:` and a `<link rel="icon" href="data:,">` if you want to stop the browser requesting a favicon.
+
+This is the policy the live site sends:
+
+```
+default-src 'none'; script-src 'nonce-<per-request>'; style-src 'unsafe-inline'; img-src data:; font-src 'self';
+base-uri 'none'; form-action 'none'; frame-ancestors 'none'; connect-src 'none'
+```
+
+## Embedding the script as a template literal
+
+The site stores the toolkit script and CSS as TypeScript template literals, so they contain no backticks and no dollar-brace sequences. If you embed them the same way (in a Worker, a server template or a bundler string), keep it that way when you edit them: use string concatenation, never a template string, inside the script.
+
+## Currency and number formats
+
+Out of the box the toolkit formats **pounds**. `money0` and `gbp` (in `helpers.js`) format whole pounds, and `compact()` (in `toolkit.js`) abbreviates with a `£` sign (`£2.3k`, `£1.2m`). For counts, percentages or another currency you have to take control, and how depends on the chart:
+
+| Chart | How to change the number format |
+| --- | --- |
+| Line, bars and stacked, area | `yfmt` for the axis and `tipfmt` for tooltips. Pass both: the defaults are pounds. |
+| Donut, ranked bars, heatmap | `fmt` (the heatmap also takes `unit`). |
+| Histogram, scatter, box plot, funnel, slope, diverging bars, bump, word cloud | Their own `fmt`, `xfmt`, `yfmt`, `tipfmt` or `unit` options, none of which default to pounds. See the chart's page. |
+| **Calendar, treemap, gauge, waterfall, flow** | **No option.** They always format with `money0` and `compact`. To show something other than pounds, change those two functions (`money0` in `helpers.js`, `compact` in `toolkit.js`) for your whole project. |
+
+A non-money dashboard should therefore pass `yfmt` and `tipfmt` to every line and bar chart, and avoid the five charts without an option, or change `money0` and `compact` globally.
+
+## Page styles are yours
+
+The toolkit styles the charts and their cards, nothing else. It sets no styles on `body`, headings, paragraphs or buttons, and `.wgrid` has no maximum width. Provide a minimum yourself:
+
+```css
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f-ui); line-height: 1.55; }
+button { font: inherit; }
+.page { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+```
+
+(The starter example's `starter.css` is a working version.) Without a `body` background and colour the dark theme will not apply to the page itself.
+
+## Several charts on one page
+
+`setChartWidth` is global state: it sets the width for the next chart you draw. With charts in containers of different widths (half-width and full-width cards), call it with **each container's own width immediately before drawing that chart**:
+
+```js
+function draw(host, build) {
+  setChartWidth(host.clientWidth);
+  host.replaceChildren(build());
+}
+```
+
+Redraw on resize with a `ResizeObserver`, and ignore changes of a few pixels so that drawing a chart cannot trigger another redraw:
+
+```js
+let last = 0;
+new ResizeObserver(() => {
+  const w = document.body.clientWidth;
+  if (Math.abs(w - last) < 6) return;
+  last = w;
+  drawEverything();
+}).observe(document.body);
+```
+
+## A "Show as table" switch
+
+Offer a table next to every chart. Build it with `dataTable` from the same data, and swap it in. The toolkit styles `.mini` buttons (a pill that darkens when `aria-pressed="true"`):
+
+```html
+<section class="widget" aria-labelledby="h-spend">
+  <header>
+    <div><h2 id="h-spend">Monthly spend</h2><p class="sub">Spend in each month.</p></div>
+    <div class="wtools"><button type="button" class="mini" id="spend-table" aria-pressed="false">Show as table</button></div>
+  </header>
+  <div id="spend"></div>
+</section>
+```
+
+```js
+let asTable = false;
+function drawSpend() {
+  const host = document.getElementById('spend');
+  setChartWidth(host.clientWidth);
+  host.replaceChildren(asTable
+    ? dataTable(['Month', 'Spend'], months.map((m, i) => [monthName(m), money0(spend[i])]), 'Monthly spend')
+    : lineChart({ xs: months, xlabel: monthName, series: [{ name: 'Spend', values: spend, colour: 'var(--c1)' }], label: 'Monthly spend' }));
+}
+document.getElementById('spend-table').addEventListener('click', e => {
+  asTable = !asTable;
+  e.currentTarget.setAttribute('aria-pressed', String(asTable));
+  drawSpend();
+});
+```
+
+## A dashboard layout
+
+`.wgrid` is a 12-column grid, `.w-full`, `.w-twothird`, `.w-half` and `.w-third` set a card's width (all of them go full width below 1000px), and `.widget` is the card, with a `header`, `.sub` for a subtitle and `.wtools` for its buttons (as in the markup above). Put the headline numbers (`.kgrid` of `.kt` tiles) above the grid.
+
+```html
+<div class="page">
+  <div class="kgrid" id="kpis"></div>
+  <div class="wgrid">
+    <section class="widget w-half">...</section>
+    <section class="widget w-half">...</section>
+    <section class="widget w-full">...</section>
+  </div>
+</div>
+```
+
+For KPI tiles, `.d` is the change line: `.good` and `.bad` colour it by meaning, `.up` (red) and `.down` (green) are for measures where rising is bad such as cost, and `.flat` is neutral grey for a measure that is neither good nor bad, like volume.
+
+## Global names
+
+The toolkit defines top-level globals: every chart function, and also `h`, `sv`, `sum`, `median`, `quantile`, `compact`, `gbp`, `money0`, `legend`, `MON`, `SLOT`, `CW`, `TIP`, `UID` and more. In a classic script, redeclaring one of them with `const` or `let` throws. Put your own code in a function, an IIFE or a `<script type="module">` (a module can read the globals), or give your names different spellings.
+
+## Small things worth knowing
+
+- `spark` always draws in `--accent`; it has no colour option. It marks the latest point with a dot, and in `bars` mode highlights the latest bar.
+- `lineChart` starts the y-axis at zero unless you pass `yMin`.
+- Tooltips are one element added to `document.body`, styled by `.tip` in `toolkit.css`.
+- Percentage points are not percentages: a share that moves from 73% to 77% went up 4 points, not 5.5%. Format the change in your own words for ratios.

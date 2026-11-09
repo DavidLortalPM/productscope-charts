@@ -1,0 +1,21 @@
+name: Chart idea
+description: Suggest a new chart type, or a new option on an existing one.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: What question should the reader be able to answer at a glance?
+      description: Start from the question, not the chart. "Which of these changed most?" is better than "a lollipop chart".
+    validations:
+      required: true
+  - type: textarea
+    id: data
+    attributes:
+      label: What does the data look like?
+      description: Columns and a few made-up rows.
+  - type: textarea
+    id: existing
+    attributes:
+      label: Why do the existing charts not do it?
+      description: See the list at https://charts.productscope.uk

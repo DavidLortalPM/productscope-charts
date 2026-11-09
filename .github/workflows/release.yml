@@ -1,0 +1,30 @@
+name: Release
+
+# When a release is published on GitHub, check the repository and attach the Claude skill as a zip
+# (for claude.ai, which uploads skills as zip files).
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  skill-zip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - name: Build the skill zip
+        run: |
+          cd skills
+          zip -r ../productscope-charts-skill.zip productscope-charts
+      - name: Attach it to the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${{ github.event.release.tag_name }}" productscope-charts-skill.zip --clobber

@@ -1,0 +1,36 @@
+name: Accessibility problem
+description: Something does not work with a keyboard, a screen reader, zoom, high contrast or colour-blindness.
+labels: [accessibility]
+body:
+  - type: input
+    id: chart
+    attributes:
+      label: Which chart?
+    validations:
+      required: true
+  - type: dropdown
+    id: how
+    attributes:
+      label: How were you using it?
+      multiple: true
+      options:
+        - Keyboard only
+        - Screen reader
+        - Zoom or large text
+        - Windows high contrast or forced colours
+        - Colour-blind or low vision
+        - Reduced motion
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what would have worked?
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Browser, operating system and assistive technology
+      placeholder: e.g. NVDA 2025.1 with Firefox on Windows 11
