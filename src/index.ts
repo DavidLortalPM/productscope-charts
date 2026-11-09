@@ -101,12 +101,14 @@ const GROUPS = [
   { id: "glance", name: "At a glance", blurb: "Single figures, targets, the words people use and the exact numbers behind them.", paths: ["/gauge", "/kpi-tiles", "/word-cloud", "/data-table"] },
 ];
 const groupOf = (path: string) => GROUPS.find(g => g.paths.includes(path))!;
+// Display order: the order the charts appear on the home page, group by group. Previous/next follow it.
+const ORDER: Page[] = GROUPS.flatMap(g => g.paths.map(x => byPath.get(x)!));
 const chips = (activeId?: string) =>
   `<nav class="cat-chips" aria-label="Chart groups">${GROUPS.map(g => `<a class="cat-chip${g.id === activeId ? " cat-chip--active" : ""}" href="/#${g.id}"${g.id === activeId ? ' aria-current="true"' : ""}>${esc(g.name)} <span>${g.paths.length}</span></a>`).join("")}</nav>`;
 
 // A chart card: the site's .post-card, with a live preview drawn in the media slot (decorative, so hidden from screen readers).
-const chartCard = (p: Page, i: number, lvl = 4) =>
-  `<a class="post-card" href="${p.path}"><div class="post-card__media thumb" data-t="${p.path.slice(1)}" aria-hidden="true"></div><div class="post-card__body"><span class="post-card__date">Chart ${String(i + 1).padStart(2, "0")}</span><h${lvl}>${esc(p.name)}</h${lvl}><p>${esc(p.tag)}</p><span class="post-card__more">View chart &rarr;</span></div></a>`;
+const chartCard = (p: Page, lvl = 4) =>
+  `<a class="post-card" href="${p.path}"><div class="post-card__media thumb" data-t="${p.path.slice(1)}" aria-hidden="true"></div><div class="post-card__body"><span class="post-card__date">${esc(groupOf(p.path).name)}</span><h${lvl}>${esc(p.name)}</h${lvl}><p>${esc(p.tag)}</p><span class="post-card__more">View chart &rarr;</span></div></a>`;
 
 const codeBlock = (id: string, code: string, label: string) =>
   `<div class="code"><div class="code-bar"><span class="split__label">${esc(label)}</span><button class="copy" type="button" data-copy="${id}">Copy</button></div><pre><code id="${id}">${esc(code)}</code></pre></div>`;
@@ -146,8 +148,9 @@ document.querySelectorAll('.thumb').forEach(el=>{const f=th[el.getAttribute('dat
 })();
 `;
 
-function chartPage(p: Page, i: number, nonce: string): string {
-  const prev = PAGES[(i + PAGES.length - 1) % PAGES.length], next = PAGES[(i + 1) % PAGES.length];
+function chartPage(p: Page, nonce: string): string {
+  const i = ORDER.indexOf(p);
+  const prev = ORDER[(i + ORDER.length - 1) % ORDER.length], next = ORDER[(i + 1) % ORDER.length];
   const g = groupOf(p.path);
   const start = Math.max(0, g.paths.indexOf(p.path));
   const related = [...g.paths.slice(start + 1), ...g.paths.slice(0, start)].slice(0, 3).map(x => byPath.get(x)!);
@@ -171,8 +174,8 @@ ${csHead("Options", "What you can pass to this chart.", undefined, "opt-h")}
 </div></section>
 <section class="section section--alt"><div class="container">
 ${csHead("More charts like this", `Other charts in the &ldquo;${esc(g.name)}&rdquo; group.`, ["/", "All charts"])}
-<div class="cards">${related.map(r => chartCard(r, PAGES.indexOf(r), 3)).join("")}</div>
-<nav class="post-nav" aria-label="Previous and next chart"><a href="${prev.path}">&larr; ${esc(prev.name)}</a><span>Chart ${i + 1} of ${PAGES.length}</span><a href="${next.path}">${esc(next.name)} &rarr;</a></nav>
+<div class="cards">${related.map(r => chartCard(r, 3)).join("")}</div>
+<nav class="post-nav" aria-label="Previous and next chart"><a href="${prev.path}">&larr; ${esc(prev.name)}</a><span>${esc(g.name)}</span><a href="${next.path}">${esc(next.name)} &rarr;</a></nav>
 </div></section>`;
   const title = `${p.title}: SVG, no library | Product Scope Charts`;
   const description = `${p.tag} Live demo and copyable code. Built from scratch in SVG, no library.`;
@@ -206,7 +209,7 @@ const FACTS: [string, string, string][] = [
 ];
 
 function indexPage(nonce: string): string {
-  const groups = GROUPS.map(g => `<div class="group" id="${g.id}"><h3 class="h2-rule">${esc(g.name)}</h3><p>${esc(g.blurb)}</p><div class="cards">${g.paths.map(x => byPath.get(x)!).map(pg => chartCard(pg, PAGES.indexOf(pg))).join("")}</div></div>`).join("");
+  const groups = GROUPS.map(g => `<div class="group" id="${g.id}"><h3 class="h2-rule">${esc(g.name)}</h3><p>${esc(g.blurb)}</p><div class="cards">${g.paths.map(x => byPath.get(x)!).map(pg => chartCard(pg)).join("")}</div></div>`).join("");
   const body = `
 <section class="section"><div class="container"><div class="split split--text">
 <div class="split__body">
@@ -419,7 +422,7 @@ export default {
     if (path === "/") html = indexPage(nonce);
     else if (path === "/toolkit") html = toolkitPage(nonce);
     else if (path === "/dashboard") html = dashboardPage(nonce);
-    else if (byPath.has(path)) html = chartPage(byPath.get(path)!, PAGES.indexOf(byPath.get(path)!), nonce);
+    else if (byPath.has(path)) html = chartPage(byPath.get(path)!, nonce);
     if (html == null) {
       const body = layout({ nonce, title: "Not found | Product Scope Charts", description: "Page not found", path: "", nav: NAV, hero: { title: "Page not found", lead: "That page does not exist or may have moved." }, body: `<section class="section"><div class="container"><div class="btn-row"><a class="btn btn--primary" href="/">See all charts</a><a class="btn btn--outline" href="/toolkit">Get the code</a></div></div></section>`, script: "", cta: false });
       return new Response(req.method === "HEAD" ? null : body, { status: 404, headers: headers(nonce, "text/html; charset=utf-8") });

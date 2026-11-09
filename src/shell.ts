@@ -133,6 +133,7 @@ dl.opts dd{margin:0;color:var(--ink-2)}
 
 .thumb>*{max-width:100%;width:100%}
 .thumb .ch text{display:none}
+.thumb .ch .word text{display:inline}
 .thumb .ch{min-width:0!important;outline:none}
 .thumb .tip,.thumb .note{display:none}
 .thumb .hb .l{visibility:hidden}
