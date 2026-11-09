@@ -189,7 +189,7 @@ const HOME_FAQ: [string, string][] = [
   ["What are these charts for?", `They are for the dashboards, reports and admin screens inside a product: how a number moves over time, how a total breaks down, what needs attention and what to do next. Each chart page says when to use that chart and when not to.`],
   ["Can I use them to build a dashboard with an AI assistant?", `Yes, and that is how this site was made. Give an assistant such as Claude the toolkit page, describe what the dashboard should show and where the data comes from, and ask it to build the page with these charts. Each chart takes plain arrays and a few options, so it can connect them to your own data and restyle them with the design tokens. Check what it produces, as you would with any code, and test it with a keyboard and a screen reader.`],
   ["Can I use it commercially?", `Yes. The code is open source under the MIT licence, so you can use, copy and change it in your own projects, including commercial ones. Keep the licence notice with the code. The fonts on this site are under the SIL Open Font License.`],
-  ["How do I change the currency?", `Currency is hard-coded to pounds in two helpers, <code>compact()</code> and <code>money0</code>. Change those two for another currency.`],
+  ["How do I change the currency?", `Currency defaults to pounds, in <code>compact()</code>, <code>money0</code> and <code>gbp</code>. Most charts take <code>yfmt</code>, <code>tipfmt</code> or <code>fmt</code> options to format numbers your way. Calendar, treemap, gauge, waterfall and flow have no such option, so change those three helpers for another currency.`],
   ["Is it accessible?", `Every chart can be reached with the keyboard, has a screen-reader label and can be shown as a data table. There is an option to use patterns instead of colour. If you find a problem, please <a href="https://github.com/DavidLortalPM/productscope-charts/issues">open an issue on GitHub</a>.`],
   ["Was this built with AI?", `Yes. Claude built all ${COUNT_WORD} charts and the mock-up dashboard, working from my direction. It is the same AI-assisted approach I use on products and reporting for clients, such as the <a href="https://productscope.uk/building-a-jira-time-reporting-dashboard-with-claude/">Jira time reporting dashboard I built with Claude</a>.`],
 ];
@@ -198,7 +198,7 @@ const FACTS: [string, string, string][] = [
   [ICONS.scale, "Licence", "MIT. Free to use and change."],
   [ICONS.file, "Files", "One stylesheet and one script."],
   [ICONS.moon, "Themes", "Light and dark, saved in your browser."],
-  [ICONS.pound, "Currency", "Pounds. Two helpers to change."],
+  [ICONS.pound, "Currency", "Pounds by default. Pass your own formatters."],
   [ICONS.db, "Data", "Made up, generated in your browser."],
 ];
 
@@ -221,13 +221,7 @@ ${chips()}
 ${groups}
 </div></section>
 <section class="section section--cool"><div class="container">
-${csHead("Small on purpose, simple to use", "One stylesheet and one script. Nothing to install, nothing to keep updating and nothing loaded from anywhere else. Copy it in, draw a chart and make it yours.", ["/toolkit", "Get the code"])}
-<div class="deliver2-grid">
-<div class="deliver2"><span class="deliver2__num">01</span><h3>Copy the code</h3><p>The toolkit page has the design tokens, a few small helpers, one block of CSS and one script. Paste them into your page.</p></div>
-<div class="deliver2"><span class="deliver2__num">02</span><h3>Draw a chart</h3><p>Call a chart function such as <code>lineChart</code> with your data and add the result to the page. Every chart page has a snippet to start from.</p></div>
-<div class="deliver2"><span class="deliver2__num">03</span><h3>Make it yours</h3><p>Point the design tokens at your own theme, or ask an AI assistant to build the dashboard for you. Pass your own number formatters if you need something other than pounds.</p></div>
-</div>
-<h3 class="h2-rule">Questions people ask</h3>
+${csHead("Questions people ask", "There is nothing to install and nothing to keep updating, and it takes three steps. First, copy the code from the <a href=\"/toolkit\">Get the code</a> page into your page: the design tokens, a few small helpers, one block of CSS and one script. Second, call a chart function such as <code>lineChart</code> with your data and add the result to the page; every chart page has a snippet to start from. Third, make it yours by pointing the design tokens at your own theme, or by asking an AI assistant to build the dashboard for you. If you need something other than pounds, pass your own number formatters.", ["/toolkit", "Get the code"])}
 ${faq(HOME_FAQ)}
 </div></section>`;
   const title = "SVG charts, no libraries, built with Claude | Product Scope Charts";
@@ -341,7 +335,7 @@ const TOKENS: [string, string][] = [
 const TOOLKIT_FAQ: [string, string][] = [
   ["Why is there no backtick or dollar-brace in the script?", `The script is stored as a template literal in the source, so it contains no backticks and no dollar-brace sequences. Keep it that way if you embed it the same way.`],
   ["How do I make a chart fit its container?", `Call <code>setChartWidth(container.clientWidth)</code> before drawing so charts fit their container, and redraw on resize.`],
-  ["How do I change the currency?", `Currency is hard-coded to pounds in <code>compact()</code> and <code>money0</code>. Change those two for another currency.`],
+  ["How do I change the currency?", `Currency defaults to pounds, in <code>compact()</code>, <code>money0</code> and <code>gbp</code>. Most charts take <code>yfmt</code>, <code>tipfmt</code> or <code>fmt</code> options to format numbers your way. Calendar, treemap, gauge, waterfall and flow have no such option, so change those three helpers for another currency.`],
 ];
 
 function toolkitPage(nonce: string): string {
