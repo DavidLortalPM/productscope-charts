@@ -222,16 +222,10 @@ ${groups}
 </div></section>
 <section class="section section--cool"><div class="container">
 ${csHead("Small on purpose, simple to use", "One stylesheet and one script. Nothing to install, nothing to keep updating and nothing loaded from anywhere else. Copy it in, draw a chart and make it yours.", ["/toolkit", "Get the code"])}
-<div class="cs-stats cs-stats--4">
-<div class="cs-stat"><strong>${COUNT}</strong><b>chart types</b><p>Plus a mock-up dashboard that uses ten of them.</p></div>
-<div class="cs-stat"><strong>0</strong><b>libraries</b><p>One stylesheet and one script, built from scratch.</p></div>
-<div class="cs-stat"><strong>0</strong><b>third-party requests</b><p>No external scripts, fonts or styles. No cookies and no analytics.</p></div>
-<div class="cs-stat"><strong>MIT</strong><b>licence</b><p>Free to use and change, including in commercial work.</p></div>
-</div>
 <div class="deliver2-grid">
 <div class="deliver2"><span class="deliver2__num">01</span><h3>Copy the code</h3><p>The toolkit page has the design tokens, a few small helpers, one block of CSS and one script. Paste them into your page.</p></div>
 <div class="deliver2"><span class="deliver2__num">02</span><h3>Draw a chart</h3><p>Call a chart function such as <code>lineChart</code> with your data and add the result to the page. Every chart page has a snippet to start from.</p></div>
-<div class="deliver2"><span class="deliver2__num">03</span><h3>Make it yours</h3><p>Point the design tokens at your own theme, or ask an AI assistant to build the dashboard for you. Change two helpers if you need a currency other than pounds.</p></div>
+<div class="deliver2"><span class="deliver2__num">03</span><h3>Make it yours</h3><p>Point the design tokens at your own theme, or ask an AI assistant to build the dashboard for you. Pass your own number formatters if you need something other than pounds.</p></div>
 </div>
 <h3 class="h2-rule">Questions people ask</h3>
 ${faq(HOME_FAQ)}
