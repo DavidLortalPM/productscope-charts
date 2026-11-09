@@ -2,6 +2,8 @@
 // (so h, demo, the chart functions and the made-up data are in scope): no backticks, no dollar-brace sequences.
 // All numbers are generated from a seeded random generator in shell.ts: nothing here is real data.
 
+import { USAGE_PAGES } from "./pages-usage";
+
 export interface Page {
   path: string;
   name: string;
@@ -584,6 +586,7 @@ demo({
   note:S=>S.data==='normal'?'Sorting and totals are ordinary code around the same table. On a phone the table scrolls sideways instead of squashing.':''
 });`,
   },
+  ...USAGE_PAGES,
 ];
 
 export const byPath = new Map(PAGES.map(p => [p.path, p]));

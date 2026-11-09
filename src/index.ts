@@ -14,7 +14,12 @@ import ogImage from "./og.png";
 
 const SITE_URL = "https://charts.productscope.uk";
 const PS_URL = "https://productscope.uk";
-const LASTMOD = "2026-11-02"; // bump when page content changes; used in sitemap.xml
+const LASTMOD = "2026-11-09"; // bump when page content changes; used in sitemap.xml
+
+// How many chart types there are, in words, so the copy never says a stale number.
+const WORDS_UNDER_20 = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
+const numWord = (n: number) => n < 20 ? WORDS_UNDER_20[n] : n < 100 ? ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"][Math.floor(n / 10)] + (n % 10 ? "-" + WORDS_UNDER_20[n % 10] : "") : String(n);
+const COUNT = PAGES.length, COUNT_WORD = numWord(COUNT);
 
 // Self-hosted Product Scope fonts (DM Sans body, Poppins headings), served first-party.
 const FONTS: Record<string, ArrayBuffer> = {
@@ -89,10 +94,11 @@ const csHead = (title: string, lead: string, btn?: [string, string], id?: string
 
 // Chart groups: used for the chips, the grouped gallery and the "more like this" cards.
 const GROUPS = [
-  { id: "time", name: "Over time", blurb: "See how a measure moves, repeats or clusters across days, weeks and months.", paths: ["/line", "/sparkline", "/calendar", "/heatmap", "/small-multiples"] },
-  { id: "compare", name: "Comparing", blurb: "Set one thing against another, in order or step by step.", paths: ["/bars", "/hbars", "/waterfall"] },
-  { id: "parts", name: "Parts of a whole", blurb: "Show what a total is made of and where it goes.", paths: ["/stacked", "/donut", "/treemap", "/flow"] },
-  { id: "glance", name: "At a glance", blurb: "Single figures, targets and the exact numbers behind them.", paths: ["/gauge", "/kpi-tiles", "/data-table"] },
+  { id: "time", name: "Over time", blurb: "See how a measure moves, repeats or clusters across days, weeks and months.", paths: ["/line", "/area", "/sparkline", "/calendar", "/heatmap", "/small-multiples"] },
+  { id: "compare", name: "Comparing", blurb: "Set one thing against another, in order or step by step.", paths: ["/bars", "/hbars", "/waterfall", "/diverging-bars", "/slope", "/bump"] },
+  { id: "spread", name: "Spread and relationships", blurb: "See how values are distributed and whether two measures move together.", paths: ["/histogram", "/box-plot", "/scatter"] },
+  { id: "parts", name: "Parts of a whole", blurb: "Show what a total is made of and where it goes.", paths: ["/stacked", "/donut", "/treemap", "/flow", "/funnel"] },
+  { id: "glance", name: "At a glance", blurb: "Single figures, targets, the words people use and the exact numbers behind them.", paths: ["/gauge", "/kpi-tiles", "/word-cloud", "/data-table"] },
 ];
 const groupOf = (path: string) => GROUPS.find(g => g.paths.includes(path))!;
 const chips = (activeId?: string) =>
@@ -124,7 +130,16 @@ const th={
  hbars:()=>hbars([['',612,'Groceries'],['',388,'Transport'],['',301,'Eating out'],['',244,'Housing']].map(x=>({label:'x',value:x[1],colour:catColourOf(x[2])})),{}),
  'small-multiples':()=>h('div',{style:'display:grid;grid-template-columns:repeat(3,1fr);gap:6px'},CATS.slice(0,6).map((c,k)=>h('div',{style:'border:1px solid var(--line);border-radius:8px;padding:4px'},spark(SP[k].slice(-12),{w:70,h:26,fluid:true})))),
  'kpi-tiles':()=>h('div',{class:'kgrid',style:'grid-template-columns:repeat(2,1fr)'},[0,1,2,3].map(k=>h('div',{class:'kt',style:'padding:8px 10px'},h('span',{class:'v',style:'font-size:1.1rem'},gbp(TOTAL[14+k])),spark(TOTAL.slice(8+k,14+k),{w:100,h:18})))),
- 'data-table':()=>dataTable(['Month','A','B'],[['Jul','£431','£1,210'],['Aug','£402','£1,210'],['Sep','£455','£1,270']])
+ 'data-table':()=>dataTable(['Month','A','B'],[['Jul','£431','£1,210'],['Aug','£402','£1,210'],['Sep','£455','£1,270']]),
+ histogram:()=>{const q=rng(5);return histogram({values:Array.from({length:260},()=>Math.exp(1.1+Math.sqrt(-2*Math.log(Math.max(1e-9,q())))*Math.cos(6.2832*q())*.6)),min:0,max:20,bins:12,height:110})},
+ 'box-plot':()=>{const q=rng(6);const g=k=>Array.from({length:60},()=>(k+1)*Math.exp(Math.sqrt(-2*Math.log(Math.max(1e-9,q())))*Math.cos(6.2832*q())*.45));return boxPlot({groups:[1,2,1.5,3,2.2].map((k,i)=>({label:'g'+i,values:g(k),colour:SLOT[i]})),height:120})},
+ 'word-cloud':()=>wordCloud({words:[['renew',9],['invoice',7],['login',6],['certificate',6],['booking',5],['refund',4],['event',4],['deadline',3],['receipt',3],['cancel',2],['venue',2],['upgrade',2]].map((w,i)=>({text:w[0],value:w[1],colour:SLOT[i%5]})),height:130,minSize:9,maxSize:24}),
+ 'diverging-bars':()=>h('div',{style:'font-size:.7rem'},divergingBars([['a',9],['b',5],['c',2],['d',-3],['e',-7]].map(x=>({label:'x',value:x[1]})),{})),
+ area:()=>areaChart({xs:MONTHS.slice(-10),series:[[3,4,4,5,6,5,7,8,8,9],[2,3,3,4,4,6,5,6,7,6],[2,2,3,2,3,3,4,3,4,5],[1,2,2,3,2,3,3,4,3,4]].map((v,k)=>({name:'s'+k,colour:SLOT[k],values:v})),yfmt:v=>'',height:110}),
+ scatter:()=>{const q=rng(8);return scatter({points:Array.from({length:70},()=>{const x=q()*10;return{x:x,y:x*.6+q()*3,group:q()<.5?'a':'b'}}),groups:{a:'var(--c1)',b:'var(--c2)'},trend:true,height:120})},
+ bump:()=>bump({xs:['a','b','c','d','e'],xlabel:()=>'',rowH:16,series:rankSeries([[5,6,8,9,7],[7,6,4,3,5],[3,4,3,5,6],[2,2,3,2,2]].map((v,i)=>({name:'',values:v,colour:SLOT[i]})))}),
+ slope:()=>slope({items:[['a',3,8],['b',6,5],['c',9,4],['d',5,6],['e',2,1]].map(x=>({label:'',from:x[1],to:x[2]})),height:120}),
+ funnel:()=>funnel({steps:[{label:'',value:100},{label:'',value:72},{label:'',value:40},{label:'',value:31}],rowH:18,between:false})
 };
 document.querySelectorAll('.thumb').forEach(el=>{const f=th[el.getAttribute('data-t')];if(!f)return;setChartWidth(300);setPatterns(false);try{el.append(f())}catch(e){}
   el.querySelectorAll('[tabindex]').forEach(n=>n.removeAttribute('tabindex'))});
@@ -179,7 +194,7 @@ const HOME_FAQ: [string, string][] = [
   ["Can I use it commercially?", `Yes. The code is open source under the MIT licence, so you can use, copy and change it in your own projects, including commercial ones. Keep the licence notice with the code. The fonts on this site are under the SIL Open Font License.`],
   ["How do I change the currency?", `Currency is hard-coded to pounds in two helpers, <code>compact()</code> and <code>money0</code>. Change those two for another currency.`],
   ["Is it accessible?", `Every chart can be reached with the keyboard, has a screen-reader label and can be shown as a data table. There is an option to use patterns instead of colour. If you find a problem, please <a href="https://github.com/DavidLortalPM/productscope-charts/issues">open an issue on GitHub</a>.`],
-  ["Was this built with AI?", `Yes. Claude built all fifteen charts and the mock-up dashboard, working from my direction. It is the same AI-assisted approach I use on products and reporting for clients, such as the <a href="https://productscope.uk/building-a-jira-time-reporting-dashboard-with-claude/">Jira time reporting dashboard I built with Claude</a>.`],
+  ["Was this built with AI?", `Yes. Claude built all ${COUNT_WORD} charts and the mock-up dashboard, working from my direction. It is the same AI-assisted approach I use on products and reporting for clients, such as the <a href="https://productscope.uk/building-a-jira-time-reporting-dashboard-with-claude/">Jira time reporting dashboard I built with Claude</a>.`],
 ];
 
 const FACTS: [string, string, string][] = [
@@ -198,20 +213,20 @@ function indexPage(nonce: string): string {
 <h2 class="sr-only">About the charts</h2>
 <p>Each chart is a JavaScript function that takes arrays of numbers and a few options and draws plain SVG. The <a href="/toolkit">toolkit code</a> is one stylesheet and one script, with no dependencies and no external requests, so it runs under a strict content security policy. Colours, font and corner radius come from CSS variables, so it follows your theme, light or dark.</p>
 <p>Every chart page gives you when to use it, a live demo, the options and a snippet to paste. The charts handle empty data, a single data point and outliers, can be used from the keyboard and can be shown as a table.</p>
-<p>The dashboard is a worked example: ten of the fifteen charts on one page, wired to made-up data. Claude built it, and the charts. The function signatures are small and regular, so the same approach works for your own dashboards: give an AI assistant the toolkit, describe your data and ask it to build the page.</p>
+<p>The dashboard is a worked example: ten of the ${COUNT_WORD} charts on one page, wired to made-up data. Claude built it, and the charts. The function signatures are small and regular, so the same approach works for your own dashboards: give an AI assistant the toolkit, describe your data and ask it to build the page.</p>
 <div class="split__actions"><a class="btn btn--primary" href="/dashboard">Open the dashboard</a></div>
 </div>
 <div class="split__media"><aside class="cs-side-card" aria-labelledby="short-h"><h3 class="sidebar__title" id="short-h">Details</h3><ul class="cs-facts-side">${FACTS.map(([ic, t, d]) => `<li><span class="cs-side-ico">${ic}</span><div><span class="fact-t">${esc(t)}</span><span class="fact-d">${esc(d)}</span></div></li>`).join("")}</ul></aside></div>
 </div></div></section>
 <section class="section section--alt" id="charts"><div class="container">
-${csHead("All fifteen charts", "Each page has a live demo you can change, a copyable snippet and the options. Jump to a group or scroll through them all.")}
+${csHead(`All ${COUNT_WORD} charts`, "Each page has a live demo you can change, a copyable snippet and the options. Jump to a group or scroll through them all.")}
 ${chips()}
 ${groups}
 </div></section>
 <section class="section section--cool"><div class="container">
 ${csHead("Small on purpose, simple to use", "One stylesheet and one script. Nothing to install, nothing to keep updating and nothing loaded from anywhere else. Copy it in, draw a chart and make it yours.", ["/toolkit", "Get the code"])}
 <div class="cs-stats cs-stats--4">
-<div class="cs-stat"><strong>15</strong><b>chart types</b><p>Plus a mock-up dashboard that uses ten of them.</p></div>
+<div class="cs-stat"><strong>${COUNT}</strong><b>chart types</b><p>Plus a mock-up dashboard that uses ten of them.</p></div>
 <div class="cs-stat"><strong>0</strong><b>libraries</b><p>One stylesheet and one script, built from scratch.</p></div>
 <div class="cs-stat"><strong>0</strong><b>third-party requests</b><p>No external scripts, fonts or styles. No cookies and no analytics.</p></div>
 <div class="cs-stat"><strong>MIT</strong><b>licence</b><p>Free to use and change, including in commercial work.</p></div>
@@ -225,7 +240,7 @@ ${csHead("Small on purpose, simple to use", "One stylesheet and one script. Noth
 ${faq(HOME_FAQ)}
 </div></section>`;
   const title = "SVG charts, no libraries, built with Claude | Product Scope Charts";
-  const description = "SVG charts with no libraries, built with Claude: live demos, copyable code and options for fifteen chart types, all with made-up data.";
+  const description = `SVG charts with no libraries, built with Claude: live demos, copyable code and options for ${COUNT_WORD} chart types, all with made-up data.`;
   return layout({ nonce, title, description, path: "/", nav: NAV, hero: { title: "Product Scope Charts", leadHtml: `These started as the charts inside one of my own apps. I pulled them out, swapped in made-up data and published them under the MIT licence so anyone building a dashboard, report or admin screen can reuse them without taking on a charting library. The source is on <a href="https://github.com/DavidLortalPM/productscope-charts">GitHub</a>.` }, body, script: THUMBS, ld: pageLd("/", title, description, [["Charts", "/"]]) });
 }
 
@@ -319,7 +334,7 @@ ${csHead("Ten charts, one page", "Open any of these to see its live demo, code a
 </div></section>`;
   const title = "Mock-up product dashboard in plain SVG charts | Product Scope Charts";
   const description = "A made-up product dashboard built from the SVG charts on this site: KPI tiles, stacked revenue, a waterfall, a usage heatmap and more. No libraries, all made-up data.";
-  return layout({ nonce, title, description, path: "/dashboard", nav: NAV, hero: { title: "Mock-up dashboard", lead: "Ten of the fifteen charts working together in one view. Every number is made up." }, body, script: DASH, ld: pageLd("/dashboard", title, description, [["Charts", "/"], ["Dashboard", "/dashboard"]]) });
+  return layout({ nonce, title, description, path: "/dashboard", nav: NAV, hero: { title: "Mock-up dashboard", lead: `Ten of the ${COUNT_WORD} charts working together in one view. Every number is made up.` }, body, script: DASH, ld: pageLd("/dashboard", title, description, [["Charts", "/"], ["Dashboard", "/dashboard"]]) });
 }
 
 const TOKENS: [string, string][] = [

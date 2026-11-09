@@ -1,6 +1,6 @@
 # Product Scope Charts
 
-**Fifteen SVG chart types, built from scratch with Claude. No libraries, no dependencies, strict-CSP friendly, free to use.**
+**Twenty-four SVG chart types, built from scratch with Claude. No libraries, no dependencies, strict-CSP friendly, free to use.**
 
 [**See it live**](https://charts.productscope.uk) · [Get the code](https://charts.productscope.uk/toolkit) · [Product Scope](https://productscope.uk)
 
@@ -16,7 +16,7 @@ It started life inside one of our own apps. We cleaned it up and gave it away as
 
 ## What you get
 
-- **Fifteen chart types:** line, grouped bars, stacked, donut, heatmap, calendar, treemap, sparkline, gauge, waterfall, flow, ranked bars, small multiples, KPI tiles and data tables.
+- **Twenty-four chart types:** line, stacked and percent area, grouped bars, stacked, donut, heatmap, calendar, treemap, sparkline, gauge, waterfall, flow, ranked bars, diverging bars, slope, bump, histogram, box plot, scatter and bubble, funnel, word cloud, small multiples, KPI tiles and data tables.
 - **Works under a strict CSP:** no external scripts, fonts or styles, and no `eval`.
 - **Accessible by default:** keyboard navigation, screen-reader labels, a data table behind every chart, and optional patterns instead of colour.
 - **Honest about edge cases:** empty, one-point and outlier data are handled and shown, not hidden.

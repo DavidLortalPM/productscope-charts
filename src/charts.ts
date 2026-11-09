@@ -5,7 +5,9 @@
 // colour, and every chart copes with empty, one-point and all-zero data. NOTE: this is a TypeScript template literal, so the
 // script must contain no backticks and no dollar-brace sequences.
 
-export const CHARTS_CSS = `
+import { CHARTS_MORE_CSS, CHARTS_MORE_JS } from "./charts-more";
+
+const CHARTS_CSS_CORE = `
 .wgrid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px}
 .w-full{grid-column:span 12}.w-half{grid-column:span 6}.w-third{grid-column:span 4}.w-twothird{grid-column:span 8}
 @media (max-width:1000px){.w-half,.w-third,.w-twothird{grid-column:span 12}}
@@ -63,7 +65,7 @@ a.kt:hover{background:var(--sunk)}
 .note{color:var(--muted);font-size:.85rem;padding:18px;text-align:center}
 `;
 
-export const CHARTS_JS = `
+const CHARTS_JS_CORE = `
 const NS='http://www.w3.org/2000/svg';
 const sv=(t,a,...k)=>{const e=document.createElementNS(NS,t);if(a)for(const[n,v]of Object.entries(a))if(v!=null&&v!==false)e.setAttribute(n,v);for(const c of k.flat())if(c!=null&&c!==false)e.append(c.nodeType?c:document.createTextNode(c));return e};
 const compact=n=>{const a=Math.abs(n||0);const s=a>=1e6?(a/1e6).toFixed(1)+'m':a>=1e4?Math.round(a/1e3)+'k':a>=1e3?(a/1e3).toFixed(1)+'k':String(Math.round(a));return (n<0?'-':'')+'£'+s};
@@ -270,3 +272,7 @@ function flow(o){const W=CW,H=o.height||340,nw=16,pad=8;const L=o.left.filter(x=
 
 function dataTable(head,rows,caption){return h('div',{style:'overflow-x:auto'},h('table',{class:'dtable'},caption?h('caption',{},caption):null,h('thead',{},h('tr',{},...head.map((x,i)=>h('th',{class:i===0?'l':'',scope:'col'},x)))),h('tbody',{},rows.map(r=>h('tr',{},...r.map((c,i)=>h('td',{class:i===0?'l':''},c==null?'':String(c))))))))}
 `;
+
+// The core charts above, then the distribution / ranking / text charts from charts-more.ts, as one stylesheet and one script.
+export const CHARTS_CSS = CHARTS_CSS_CORE + CHARTS_MORE_CSS;
+export const CHARTS_JS = CHARTS_JS_CORE + CHARTS_MORE_JS;
